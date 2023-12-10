@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Treasurer</title>
+
+    <script src="./journal.js"></script>
+
+</head>
+
+<body>
+
+    <form id="transaction">
+
+        <fieldset>
+            <legend>Transaction</legend>
+
+            <fieldset>
+                <legend>Header</legend>
+                <label for="created">Created</label><input id="created" type="date" required>
+                <br>
+                <label for="reference">Reference</label><input id="reference" type="text" required>
+                <br>
+                <label for="note">Note</label><br><textarea id="note"></textarea>
+                <br>
+                <input id="file" type="file">
+                <br>
+            </fieldset>
+
+            <fieldset id="entries">
+                <legend>Entries</legend>
+                <button id="add" type="button">Add</button>
+
+                <div id="entry_data_1">
+                    <select id="entry_1">
+                        <option value="credit">Credit</option>
+                        <option value="debit" selected>Debit</option>
+                    </select>
+                    <input id="date_1" type="date" required>
+                    <select id="account_1">
+                        <optgroup label="Assets">
+                            <option value="bank deposits" selected>bank deposits</option>
+                        </optgroup>
+                        <optgroup label="Equity">
+                            <option value="previous years' profit or loss">previous years' profit or loss</option>
+                        </optgroup>
+                        <optgroup label="Liabilities">
+                            <option value="debt">debet</option>
+                        </optgroup>
+                        <optgroup label="Revenue">
+                            <option value="fees">fees</option>
+                        </optgroup>
+                        <optgroup label="Expenses">
+                            <option value="costs">costs</option>
+                        </optgroup>
+                    </select>
+                    <input id="amount_1" type="number" min="0.01" step="0.01" required>&euro;
+                </div>
+
+                <div id="entry_data_2">
+                    <select id="entry_2">
+                        <option value="credit" selected>Credit</option>
+                        <option value="debit">Debit</option>
+                    </select>
+                    <input id="date_2" type="date" required>
+                    <select id="account_2">
+                        <optgroup label="Assets">
+                            <option value="bank deposits">bank accout</option>
+                        </optgroup>
+                        <optgroup label="Equity">
+                            <option value="previous years' profit or loss">previous years' profit or loss</option>
+                        </optgroup>
+                        <optgroup label="Liabilities">
+                            <option value="debt">debit</option>
+                        </optgroup>
+                        <optgroup label="Revenue">
+                            <option value="fees">fees</option>
+                            <option value="does" selected>dues</option>
+                        </optgroup>
+                        <optgroup label="Expenses">
+                            <option value="costs">costs</option>
+                        </optgroup>
+                    </select>
+                    <input id="amount_2" type="number" min="0.01" step="0.01" required>&euro;
+                </div>
+
+            </fieldset>
+            <input id="submit" type="submit" value="Submit">
+        </fieldset>
+    </form>
+
+    <table id="journal">
+        <caption>Journal</caption>
+        <thead>
+            <tr><th>Date</th><th>Reference</th><th>Entry</th><th>Account</th><th>Amount</th></tr>
+        </thead>
+        <tbody id="journal_data"></tbody>
+    </table>
+
+    <script>
+
+        const one = (selectors) => document.querySelector(selectors);
+        const all = (selectors) => document.querySelectorAll(selectors);
+
+        one("#created").value = new Date().toISOString().split("T")[0];
+        one("#date_1").value = new Date().toISOString().split("T")[0];
+        one("#date_2").value = new Date().toISOString().split("T")[0];
+
+        one("#add").onclick = () => {
+            const div = one("#entries").appendChild(one("#entry_data_2").cloneNode(true));
+            const button = div.appendChild(document.createElement("button"));
+            button.textContent = "Remove";
+            button.setAttribute("type","button");
+            button.setAttribute("onclick","this.parentElement.remove();");
+        }
+
+        one("#amount_1").onchange = () => one("#amount_2").value = one("#amount_1").value;
+
+        const update = (entries) => {
+            const tbody = one("#journal_data");
+            entries.forEach((transaction) => transaction.entries.forEach((entry) => {
+                    const tr = document.createElement("tr");
+                    tr.appendChild(document.createElement("td")).textContent = entry.date;
+                    tr.appendChild(document.createElement("td")).textContent = transaction.header.reference;
+                    tr.appendChild(document.createElement("td")).textContent = entry.entry;
+                    tr.appendChild(document.createElement("td")).textContent = entry.account;
+                    tr.appendChild(document.createElement("td")).textContent = entry.amount;
+                    tbody.prepend(tr);
+                }
+            ));
+        }
+
+        update(journal);
+
+        one("#transaction").onsubmit = (event) => {
+            event.preventDefault();
+            const transaction = {header: {
+                                    created: one("#created").value,
+                                    reference: one("#reference").value,
+                                    note: one("#note").value,
+                                    file: one("#file").value},
+                                 entries:[]
+                                };
+            const divs = all("#entries div");
+            for(div of divs) {
+                transaction.entries.push(
+                    {
+                        entry: div.children[0].value,
+                        date: div.children[1].value,
+                        account: div.children[2].value,
+                        amount: div.children[3].value
+                    });
+            }
+            journal.push(transaction);
+            update(journal.splice(journal.length - 1));
+            alert("Transaction with " + divs.length + " entries");
+        }
+
+</script>
+
+</body>
+
+</html>
