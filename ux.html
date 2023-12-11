@@ -10,6 +10,8 @@
 
 <body>
 
+    <button id="save" type="button">Save</button>
+
     <form id="transaction">
 
         <fieldset>
@@ -92,9 +94,30 @@
     <table id="journal">
         <caption>Journal</caption>
         <thead>
-            <tr><th>Date</th><th>Reference</th><th>Entry</th><th>Account</th><th>Amount</th></tr>
+            <tr>
+                <th>Date</th>
+                <th>Reference</th>
+                <th>Entry</th>
+                <th>Account</th>
+                <th>Amount</th>
+            </tr>
         </thead>
         <tbody id="journal_data"></tbody>
+    </table>
+
+    <table id="ledger">
+        <caption>Ledger</caption>
+        <thead>
+            <tr>
+                <th>Account</th>
+                <th>Date</th>
+                <th>Reference</th>
+                <th>Entry</th>
+                <th>Amount</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody id="ledger_data"></tbody>
     </table>
 
     <script>
@@ -110,39 +133,67 @@
             const div = one("#entries").appendChild(one("#entry_data_2").cloneNode(true));
             const button = div.appendChild(document.createElement("button"));
             button.textContent = "Remove";
-            button.setAttribute("type","button");
-            button.setAttribute("onclick","this.parentElement.remove();");
+            button.setAttribute("type", "button");
+            button.setAttribute("onclick", "this.parentElement.remove();");
         }
 
         one("#amount_1").onchange = () => one("#amount_2").value = one("#amount_1").value;
 
-        const update = (entries) => {
-            const tbody = one("#journal_data");
-            entries.forEach((transaction) => transaction.entries.forEach((entry) => {
-                    const tr = document.createElement("tr");
-                    tr.appendChild(document.createElement("td")).textContent = entry.date;
-                    tr.appendChild(document.createElement("td")).textContent = transaction.header.reference;
-                    tr.appendChild(document.createElement("td")).textContent = entry.entry;
-                    tr.appendChild(document.createElement("td")).textContent = entry.account;
-                    tr.appendChild(document.createElement("td")).textContent = entry.amount;
-                    tbody.prepend(tr);
+        const update = () => {
+            let tbody = one("#journal_data");
+            tbody.innerHTML = "";
+            journal.forEach((transaction) => transaction.entries.forEach((entry) => {
+                const tr = document.createElement("tr");
+                tr.appendChild(document.createElement("td")).textContent = entry.date;
+                tr.appendChild(document.createElement("td")).textContent = transaction.header.reference;
+                tr.appendChild(document.createElement("td")).textContent = entry.entry;
+                tr.appendChild(document.createElement("td")).textContent = entry.account;
+                tr.appendChild(document.createElement("td")).textContent = entry.amount;
+                tbody.prepend(tr);
+            }));
+
+            const ledger = [];
+            journal.forEach((transaction) => transaction.entries.forEach((entry) => {
+                entry.reference = transaction.header.reference;
+                ledger.push(entry);
+            }));
+            ledger.sort((lhs,rhs) => lhs.account < rhs.account);
+
+            tbody = one("#ledger_data");
+            tbody.innerHTML = "";
+            let account = ""; let subtotal = 0.00;
+            ledger.forEach((entry) => {
+                if(account != entry.account) {
+                    account = entry.account;
+                    subtotal = 0.00;
                 }
-            ));
+                subtotal += 1 * entry.amount;
+                const tr = document.createElement("tr");
+                tr.appendChild(document.createElement("td")).textContent = entry.account;
+                tr.appendChild(document.createElement("td")).textContent = entry.date;
+                tr.appendChild(document.createElement("td")).textContent = entry.reference;
+                tr.appendChild(document.createElement("td")).textContent = entry.entry;
+                tr.appendChild(document.createElement("td")).textContent = entry.amount;
+                tr.appendChild(document.createElement("td")).textContent = subtotal;
+                tbody.prepend(tr);
+            });
         }
 
-        update(journal);
+        update();
 
         one("#transaction").onsubmit = (event) => {
             event.preventDefault();
-            const transaction = {header: {
-                                    created: one("#created").value,
-                                    reference: one("#reference").value,
-                                    note: one("#note").value,
-                                    file: one("#file").value},
-                                 entries:[]
-                                };
+            const transaction = {
+                header: {
+                    created: one("#created").value,
+                    reference: one("#reference").value,
+                    note: one("#note").value,
+                    file: one("#file").value
+                },
+                entries: []
+            };
             const divs = all("#entries div");
-            for(div of divs) {
+            for (div of divs) {
                 transaction.entries.push(
                     {
                         entry: div.children[0].value,
@@ -152,11 +203,21 @@
                     });
             }
             journal.push(transaction);
-            update(journal.splice(journal.length - 1));
+            update();
             alert("Transaction with " + divs.length + " entries");
         }
 
-</script>
+        one("#save").onclick = () => {
+            const a = document.createElement('a');
+            const content = "let journal = " + JSON.stringify(journal) + ";";
+            const file = new Blob([content], { type: "application/javascript" });
+            a.href = URL.createObjectURL(file);
+            a.download = "test.js";
+            a.click();
+            URL.revokeObjectURL(a.href);
+        };
+
+    </script>
 
 </body>
 
