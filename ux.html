@@ -91,18 +91,15 @@
         </fieldset>
     </form>
 
-    <table id="journal">
-        <caption>Journal</caption>
+    <table id="balance">
+        <caption>Balance</caption>
         <thead>
             <tr>
-                <th>Date</th>
-                <th>Reference</th>
-                <th>Entry</th>
                 <th>Account</th>
                 <th>Amount</th>
             </tr>
         </thead>
-        <tbody id="journal_data"></tbody>
+        <tbody id="balance_data"></tbody>
     </table>
 
     <table id="ledger">
@@ -118,6 +115,20 @@
             </tr>
         </thead>
         <tbody id="ledger_data"></tbody>
+    </table>
+
+    <table id="journal">
+        <caption>Journal</caption>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Reference</th>
+                <th>Entry</th>
+                <th>Account</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody id="journal_data"></tbody>
     </table>
 
     <script>
@@ -139,6 +150,8 @@
 
         one("#amount_1").onchange = () => one("#amount_2").value = one("#amount_1").value;
 
+        const balance = new Map();
+
         const update = () => {
             let tbody = one("#journal_data");
             tbody.innerHTML = "";
@@ -157,17 +170,21 @@
                 entry.reference = transaction.header.reference;
                 ledger.push(entry);
             }));
-            ledger.sort((lhs,rhs) => lhs.account < rhs.account);
+            ledger.sort((lhs,rhs) => lhs.account != rhs.account ? lhs.account < rhs.account : lhs.date > rhs.date);
+
+            let account = ""; let subtotal = 0.00;
 
             tbody = one("#ledger_data");
             tbody.innerHTML = "";
-            let account = ""; let subtotal = 0.00;
             ledger.forEach((entry) => {
                 if(account != entry.account) {
                     account = entry.account;
                     subtotal = 0.00;
                 }
-                subtotal += 1 * entry.amount;
+                
+                subtotal += (entry.entry == "credit" ? 1 : -1) * entry.amount;
+                balance.set(entry.account,subtotal);
+
                 const tr = document.createElement("tr");
                 tr.appendChild(document.createElement("td")).textContent = entry.account;
                 tr.appendChild(document.createElement("td")).textContent = entry.date;
@@ -175,6 +192,15 @@
                 tr.appendChild(document.createElement("td")).textContent = entry.entry;
                 tr.appendChild(document.createElement("td")).textContent = entry.amount;
                 tr.appendChild(document.createElement("td")).textContent = subtotal;
+                tbody.prepend(tr);
+            });
+ 
+            tbody = one("#balance_data");
+            tbody.innerHTML = "";
+            balance.forEach((total,account) => {
+                const tr = document.createElement("tr");
+                tr.appendChild(document.createElement("td")).textContent = account;
+                tr.appendChild(document.createElement("td")).textContent = total;
                 tbody.prepend(tr);
             });
         }
