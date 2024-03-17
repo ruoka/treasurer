@@ -1,0 +1,21 @@
+html {
+    font-family: "helvetica neue", helvetica, arial, sans-serif;
+}
+
+table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+tbody td {
+    text-align: left;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #33b1ff;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #ffffff;
+}
