@@ -3,9 +3,7 @@
 
 <head>
     <title>Treasurer</title>
-
     <script src="./journal.js"></script>
-
 </head>
 
 <body>
@@ -133,8 +131,8 @@
 
     <script>
 
-        const one = (selectors) => document.querySelector(selectors);
-        const all = (selectors) => document.querySelectorAll(selectors);
+        const one = selectors => document.querySelector(selectors);
+        const all = selectors => document.querySelectorAll(selectors);
 
         one("#created").value = new Date().toISOString().split("T")[0];
         one("#date_1").value = new Date().toISOString().split("T")[0];
@@ -148,14 +146,18 @@
             button.setAttribute("onclick", "this.parentElement.remove();");
         }
 
+        one("#entry_1").onchange = () => one("#entry_2").value = one("#entry_1").value.localeCompare("credit") ? "credit" : "debit";
+        one("#date_1").onchange = () => one("#date_2").value = one("#date_1").value;
         one("#amount_1").onchange = () => one("#amount_2").value = one("#amount_1").value;
 
         const balance = new Map();
 
         const update = () => {
+            const ledger = [];
             let tbody = one("#journal_data");
             tbody.innerHTML = "";
-            journal.forEach((transaction) => transaction.entries.forEach((entry) => {
+
+            journal.forEach(transaction => transaction.entries.forEach(entry => {
                 const tr = document.createElement("tr");
                 tr.appendChild(document.createElement("td")).textContent = entry.date;
                 tr.appendChild(document.createElement("td")).textContent = transaction.header.reference;
@@ -163,26 +165,24 @@
                 tr.appendChild(document.createElement("td")).textContent = entry.account;
                 tr.appendChild(document.createElement("td")).textContent = entry.amount;
                 tbody.prepend(tr);
-            }));
-
-            const ledger = [];
-            journal.forEach((transaction) => transaction.entries.forEach((entry) => {
+ 
                 entry.reference = transaction.header.reference;
                 ledger.push(entry);
             }));
-            ledger.sort((lhs,rhs) => lhs.account != rhs.account ? lhs.account < rhs.account : lhs.date > rhs.date);
+
+            ledger.sort((lhs,rhs) => rhs.account.localeCompare(lhs.account) !== 0 ? rhs.account.localeCompare(lhs.account) : lhs.date.localeCompare(rhs.date));
 
             let account = ""; let subtotal = 0.00;
-
             tbody = one("#ledger_data");
             tbody.innerHTML = "";
-            ledger.forEach((entry) => {
-                if(account != entry.account) {
+
+            ledger.forEach(entry => {
+                if(account.localeCompare(entry.account)) {
                     account = entry.account;
                     subtotal = 0.00;
                 }
-                
-                subtotal += (entry.entry == "credit" ? 1 : -1) * entry.amount;
+
+                subtotal += (entry.entry.localeCompare("credit") == 0 ? 1 : -1) * entry.amount;
                 balance.set(entry.account,subtotal);
 
                 const tr = document.createElement("tr");
@@ -190,9 +190,9 @@
                 tr.appendChild(document.createElement("td")).textContent = entry.date;
                 tr.appendChild(document.createElement("td")).textContent = entry.reference;
                 tr.appendChild(document.createElement("td")).textContent = entry.entry;
-                tr.appendChild(document.createElement("td")).textContent = entry.amount;
-                tr.appendChild(document.createElement("td")).textContent = subtotal;
-                tbody.prepend(tr);
+                tr.appendChild(document.createElement("td")).textContent = entry.amount.toFixed(2);
+                tr.appendChild(document.createElement("td")).textContent = subtotal.toFixed(2);
+                tbody.append(tr);
             });
  
             tbody = one("#balance_data");
@@ -200,14 +200,14 @@
             balance.forEach((total,account) => {
                 const tr = document.createElement("tr");
                 tr.appendChild(document.createElement("td")).textContent = account;
-                tr.appendChild(document.createElement("td")).textContent = total;
+                tr.appendChild(document.createElement("td")).textContent = total.toFixed(2);
                 tbody.prepend(tr);
             });
         }
 
         update();
 
-        one("#transaction").onsubmit = (event) => {
+        one("#transaction").onsubmit = event => {
             event.preventDefault();
             const transaction = {
                 header: {
@@ -225,7 +225,7 @@
                         entry: div.children[0].value,
                         date: div.children[1].value,
                         account: div.children[2].value,
-                        amount: div.children[3].value
+                        amount: parseFloat(div.children[3].value)
                     });
             }
             journal.push(transaction);
@@ -239,6 +239,7 @@
             const file = new Blob([content], { type: "application/javascript" });
             a.href = URL.createObjectURL(file);
             a.download = "test.js";
+            a.target="_blank"
             a.click();
             URL.revokeObjectURL(a.href);
         };
