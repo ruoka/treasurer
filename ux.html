@@ -31,13 +31,13 @@
                 <legend>Entries</legend>
                 <button id="add" type="button">Add</button>
 
-                <div id="entry_data_1">
-                    <select id="entry_1">
+                <div id="entry_set">
+                    <select id="entry">
                         <option value="credit">Credit</option>
                         <option value="debit" selected>Debit</option>
                     </select>
-                    <input id="date_1" type="date" required>
-                    <select id="account_1">
+                    <input id="date" type="date" required>
+                    <select id="account">
                         <optgroup label="Assets">
                             <option value="bank deposits" selected>bank deposits</option>
                         </optgroup>
@@ -45,7 +45,7 @@
                             <option value="previous years' profit or loss">previous years' profit or loss</option>
                         </optgroup>
                         <optgroup label="Liabilities">
-                            <option value="debt">debet</option>
+                            <option value="debt">debt</option>
                         </optgroup>
                         <optgroup label="Revenue">
                             <option value="fees">fees</option>
@@ -54,38 +54,39 @@
                             <option value="costs">costs</option>
                         </optgroup>
                     </select>
-                    <input id="amount_1" type="number" min="0.01" step="0.01" required>&euro;
+                    <input id="amount" type="number" min="0.01" step="0.01" required>&euro;
                 </div>
 
-                <div id="entry_data_2">
-                    <select id="entry_2">
+                <div id="contra_entry_set">
+                    <select name="entry">
                         <option value="credit" selected>Credit</option>
                         <option value="debit">Debit</option>
                     </select>
-                    <input id="date_2" type="date" required>
-                    <select id="account_2">
+                    <input name="date" type="date" required>
+                    <select name="account">
                         <optgroup label="Assets">
-                            <option value="bank deposits">bank accout</option>
+                            <option value="bank deposits">bank deposits</option>
                         </optgroup>
                         <optgroup label="Equity">
                             <option value="previous years' profit or loss">previous years' profit or loss</option>
                         </optgroup>
                         <optgroup label="Liabilities">
-                            <option value="debt">debit</option>
+                            <option value="debt">debt</option>
                         </optgroup>
                         <optgroup label="Revenue">
                             <option value="fees">fees</option>
-                            <option value="does" selected>dues</option>
+                            <option value="dues" selected>dues</option>
                         </optgroup>
                         <optgroup label="Expenses">
                             <option value="costs">costs</option>
                         </optgroup>
                     </select>
-                    <input id="amount_2" type="number" min="0.01" step="0.01" required>&euro;
+                    <input name="amount" type="number" min="0.01" step="0.01" required>&euro;
                 </div>
 
             </fieldset>
             <input id="submit" type="submit" value="Submit">
+            <input id="reset" type="reset" value="Reset">
         </fieldset>
     </form>
 
@@ -97,7 +98,7 @@
                 <th>Amount</th>
             </tr>
         </thead>
-        <tbody id="balance_data"></tbody>
+        <tbody/>
     </table>
 
     <table id="ledger">
@@ -112,7 +113,7 @@
                 <th>Subtotal</th>
             </tr>
         </thead>
-        <tbody id="ledger_data"></tbody>
+        <tbody/>
     </table>
 
     <table id="journal">
@@ -125,8 +126,8 @@
                 <th>Account</th>
                 <th>Amount</th>
             </tr>
-        </thead>
-        <tbody id="journal_data"></tbody>
+            <tbody/>
+        </tbody>
     </table>
 
     <script>
@@ -134,27 +135,30 @@
         const one = selectors => document.querySelector(selectors);
         const all = selectors => document.querySelectorAll(selectors);
 
-        one("#created").value = new Date().toISOString().split("T")[0];
-        one("#date_1").value = new Date().toISOString().split("T")[0];
-        one("#date_2").value = new Date().toISOString().split("T")[0];
-
+        one("#created").onchange = () => all("#date, [name=date]").forEach(element => element.value = one("#created").value);
         one("#add").onclick = () => {
-            const div = one("#entries").appendChild(one("#entry_data_2").cloneNode(true));
+            const div = one("#entries").appendChild(one("#contra_entry_set").cloneNode(true));
             const button = div.appendChild(document.createElement("button"));
             button.textContent = "Remove";
             button.setAttribute("type", "button");
             button.setAttribute("onclick", "this.parentElement.remove();");
         }
-
-        one("#entry_1").onchange = () => one("#entry_2").value = one("#entry_1").value.localeCompare("credit") ? "credit" : "debit";
-        one("#date_1").onchange = () => one("#date_2").value = one("#date_1").value;
-        one("#amount_1").onchange = () => one("#amount_2").value = one("#amount_1").value;
+        one("#entry").onchange = () => all("[name=entry]").forEach(element => element.value = one("#entry").value.localeCompare("credit") ? "credit" : "debit");
+        one("#date").onchange = () => all("[name=date]").forEach(element => element.value = one("#date").value);
+        one("#amount").onchange = () => all("[name=amount]").forEach(element => element.value = one("#amount").value);
 
         const balance = new Map();
 
         const update = () => {
+
+            one("#reset").click();
+            one("#created").value = new Date().toISOString().split("T")[0];
+            one("#date").value = new Date().toISOString().split("T")[0];
+            all("[name=date]").forEach(element => element.value = new Date().toISOString().split("T")[0]);
+
             const ledger = [];
-            let tbody = one("#journal_data");
+
+            let tbody = one("table#journal tbody");
             tbody.innerHTML = "";
 
             journal.forEach(transaction => transaction.entries.forEach(entry => {
@@ -173,7 +177,7 @@
             ledger.sort((lhs,rhs) => rhs.account.localeCompare(lhs.account) !== 0 ? rhs.account.localeCompare(lhs.account) : lhs.date.localeCompare(rhs.date));
 
             let account = ""; let subtotal = 0.00;
-            tbody = one("#ledger_data");
+            tbody = one("table#ledger tbody");
             tbody.innerHTML = "";
 
             ledger.forEach(entry => {
@@ -195,7 +199,7 @@
                 tbody.append(tr);
             });
  
-            tbody = one("#balance_data");
+            tbody = one("table#balance tbody");
             tbody.innerHTML = "";
             balance.forEach((total,account) => {
                 const tr = document.createElement("tr");
@@ -209,6 +213,7 @@
 
         one("#transaction").onsubmit = event => {
             event.preventDefault();
+
             const transaction = {
                 header: {
                     created: one("#created").value,
@@ -218,19 +223,32 @@
                 },
                 entries: []
             };
+
+            let credits = 0.00;
+            let debits = 0.00;
             const divs = all("#entries div");
             for (div of divs) {
-                transaction.entries.push(
-                    {
-                        entry: div.children[0].value,
-                        date: div.children[1].value,
-                        account: div.children[2].value,
-                        amount: parseFloat(div.children[3].value)
-                    });
+                const entry = {
+                    entry: div.children[0].value,
+                    date: div.children[1].value,
+                    account: div.children[2].value,
+                    amount: parseFloat(div.children[3].value)
+                };
+                credits += (entry.entry.localeCompare("credit") == 0 ? entry.amount : 0);
+                debits += (entry.entry.localeCompare("debit") == 0 ? entry.amount : 0);
+                transaction.entries.push(entry);
             }
-            journal.push(transaction);
-            update();
-            alert("Transaction with " + divs.length + " entries");
+
+            if(journal.some(existing => transaction.header.reference.localeCompare(existing.header.reference) === 0)) {
+                alert(`Error: Transaction with reference ${transaction.header.reference} already exists`);
+            }
+            else if(credits !== debits) {
+                alert(`Error: The ${divs.length} entries for transaction ${transaction.header.reference} are not matching. Difference is ${credits - debits} €`);
+            } else {
+                journal.push(transaction);
+                update();
+                alert(`Success: The ${divs.length} entries for transaction ${transaction.header.reference} are matching. Total credits/debits are ${credits} €`);
+            }
         }
 
         one("#save").onclick = () => {
