@@ -11,9 +11,9 @@ window.onload = () => {
 
         one("#reset").click();
         one("#created").value = new Date().toISOString().split("T")[0];
-        one("#date").value = new Date().toISOString().split("T")[0];
-        all("[name=date]").forEach(element => element.value = new Date().toISOString().split("T")[0]);
-    
+        one("#date").value = one("#created").value;
+        all("[name=date]").forEach(element => element.value = one("#date").value);
+
         const ledger = [];
     
         let tbody = one("table#journal tbody");
@@ -21,6 +21,7 @@ window.onload = () => {
     
         journal.forEach(transaction => transaction.entries.forEach(entry => {
             entry.reference = transaction.header.reference;
+            entry.note = transaction.header.note;
             ledger.push(entry);
     
             const tr = document.createElement("tr");
@@ -30,6 +31,7 @@ window.onload = () => {
             tr.lastChild.classList.add('reference');
             tr.appendChild(document.createElement("td")).textContent = entry.entry;
             tr.appendChild(document.createElement("td")).textContent = entry.amount;
+            tr.appendChild(document.createElement("td")).textContent = entry.note;
             tbody.prepend(tr);
         }));
     
@@ -38,7 +40,7 @@ window.onload = () => {
         const balance = new Map();
         let account = "";
         let subtotal = 0.00;
-    
+
         tbody = one("table#ledger tbody");
         tbody.innerHTML = "";
 
@@ -58,6 +60,7 @@ window.onload = () => {
             tr.appendChild(document.createElement("td")).textContent = entry.entry;
             tr.appendChild(document.createElement("td")).textContent = entry.amount.toFixed(2);
             tr.appendChild(document.createElement("td")).textContent = subtotal.toFixed(2);
+            tr.appendChild(document.createElement("td")).textContent = entry.note;
             tbody.append(tr);
         });
     
@@ -70,7 +73,7 @@ window.onload = () => {
             tr.appendChild(document.createElement("td")).textContent = total.toFixed(2);
             tbody.prepend(tr);
         });
-    
+
         all("table#ledger tbody tr, table#journal tbody tr").forEach(row => row.onclick = () => {
             let reference = row.querySelector(".reference").textContent;
             alert(`Hello ${reference}!`);
@@ -153,14 +156,21 @@ window.onload = () => {
             transaction.entries.push(entry);
         }
     
-        if(journal.some(existing => !transaction.header.reference.localeCompare(existing.header.reference))) {
+        const update = one("#update").checked;
+
+        if(update == false && journal.some(existing => !transaction.header.reference.localeCompare(existing.header.reference))) {
             alert(`Error: Transaction with reference ${transaction.header.reference} already exists`);
         }
         else if(credits !== debits) {
             alert(`Error: The ${divs.length} entries for transaction ${transaction.header.reference} are not matching. Difference is ${credits - debits} €`);
         } else {
             alert(`Success: The ${divs.length} entries for transaction ${transaction.header.reference} are matching. Total credits/debits are ${credits} €`);
-            journal.push(transaction);
+            if(update) {
+                const index = journal.findIndex(existing => !transaction.header.reference.localeCompare(existing.header.reference));
+                journal[index] = transaction;
+            } else {
+                journal.push(transaction);
+            }
             accout();
         }
     }
