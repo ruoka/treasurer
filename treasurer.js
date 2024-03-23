@@ -34,7 +34,7 @@ window.onload = () => {
     
         ledger.sort((lhs,rhs) => rhs.account.localeCompare(lhs.account) ? rhs.account.localeCompare(lhs.account) : lhs.date.localeCompare(rhs.date));
 
-        const balance = new Map();
+        const balances = new Map();
         let account = "";
         let subtotal = 0.00;
 
@@ -47,7 +47,7 @@ window.onload = () => {
                 subtotal = 0.00;
             }
             subtotal += (entry.entry.localeCompare("credit") ? -1 : 1) * entry.amount;
-            balance.set(entry.account,subtotal);
+            balances.set(entry.account,subtotal);
     
             const tr = document.createElement("tr");
             tr.appendChild(document.createElement("td")).textContent = entry.account;
@@ -61,7 +61,7 @@ window.onload = () => {
             tbody.append(tr);
         });
     
-        general_ledger.render(balance);
+        general_ledger.render(balances);
 
         all("table#ledger tbody tr, table#journal tbody tr").forEach(row => row.onclick = () => {
             let reference = row.querySelector(".reference").textContent;
