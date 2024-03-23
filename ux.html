@@ -37,25 +37,9 @@
                         <option value="credit">Credit</option>
                         <option value="debit" selected>Debit</option>
                     </select>
-                    <input id="date" type="date" required>
-                    <select id="account">
-                        <optgroup label="Assets">
-                            <option value="bank deposits" selected>bank deposits</option>
-                        </optgroup>
-                        <optgroup label="Equity">
-                            <option value="previous years' profit or loss">previous years' profit or loss</option>
-                        </optgroup>
-                        <optgroup label="Liabilities">
-                            <option value="debt">debt</option>
-                        </optgroup>
-                        <optgroup label="Revenue">
-                            <option value="fees">fees</option>
-                        </optgroup>
-                        <optgroup label="Expenses">
-                            <option value="costs">costs</option>
-                        </optgroup>
-                    </select>
-                    <input id="amount" type="number" min="0.01" step="0.01" required>&euro;
+                    <input id="date" type="date" required/>
+                    <select id="account"></select>
+                    <input id="amount" type="number" min="0.01" step="0.01" required/>&euro;
                 </div>
 
                 <div id="contra_entry_set">
@@ -63,26 +47,9 @@
                         <option value="credit" selected>Credit</option>
                         <option value="debit">Debit</option>
                     </select>
-                    <input name="date" type="date" required>
-                    <select name="account">
-                        <optgroup label="Assets">
-                            <option value="bank deposits">bank deposits</option>
-                        </optgroup>
-                        <optgroup label="Equity">
-                            <option value="previous years' profit or loss">previous years' profit or loss</option>
-                        </optgroup>
-                        <optgroup label="Liabilities">
-                            <option value="debt">debt</option>
-                        </optgroup>
-                        <optgroup label="Revenue">
-                            <option value="fees">fees</option>
-                            <option value="dues" selected>dues</option>
-                        </optgroup>
-                        <optgroup label="Expenses">
-                            <option value="costs">costs</option>
-                        </optgroup>
-                    </select>
-                    <input name="amount" type="number" min="0.01" step="0.01" required>&euro;
+                    <input name="date" type="date" required/>
+                    <select name="account" class="accounts"></select>
+                    <input name="amount" type="number" min="0.01" step="0.01" required/>&euro;
                 </div>
 
             </fieldset>
@@ -95,6 +62,17 @@
 
     <table id="balance">
         <caption>Balance Sheet</caption>
+        <thead>
+            <tr>
+                <th>Account</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody/>
+    </table>
+
+    <table id="PnL">
+        <caption>Profit and Loss</caption>
         <thead>
             <tr>
                 <th>Account</th>
@@ -120,7 +98,7 @@
     </table>
 
     <table id="ledger">
-        <caption>Ledger</caption>
+        <caption>General Ledger</caption>
         <thead>
             <tr>
                 <th>Account</th>

@@ -1,11 +1,12 @@
-import {accounts} from "./accounts.js";
+import {general_ledger} from "./general_ledger.js";
 import {journal} from "./journal.js";
+
+const one = selectors => document.querySelector(selectors);
+const all = selectors => document.querySelectorAll(selectors);
 
 window.onload = () => {
 
-    const one = selectors => document.querySelector(selectors);
-
-    const all = selectors => document.querySelectorAll(selectors);
+    general_ledger.render();
 
     const accout = () => {
 
@@ -65,8 +66,8 @@ window.onload = () => {
         });
     
         tbody = one("table#balance tbody");
-        tbody.innerHTML = "";
-    
+//      tbody.innerHTML = "";
+
         balance.forEach((total,account) => {
             const tr = document.createElement("tr");
             tr.appendChild(document.createElement("td")).textContent = account;
