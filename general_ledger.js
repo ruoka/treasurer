@@ -36,10 +36,9 @@ render: (balances) => {
                 tr.appendChild(document.createElement("td")).textContent = 0.00;
             table.append(tr);
         });
-        let selects = all("#account, .accounts");
-        selects.innerHTML = "";    
-        selects.forEach(select => select.appendChild(group.cloneNode(true)));
-    }
+        all("#account, .accounts").forEach(select => select.appendChild(group.cloneNode(true)));
+    };
+    all("#account, .accounts").forEach(select => select.innerHTML = "");
     const tbody1 = one("table#balance tbody");
     tbody1.innerHTML = "";
     populate(tbody1,general_ledger.assets,"assets");
