@@ -26,7 +26,7 @@ isPnL: (account) => {
 
 render: (balances) => {
 
-    let populate = (tbody,name,category) => {
+    const populate = (tbody,name,category) => {
 
         const group = document.createElement("optgroup");
         group.label = name;
@@ -41,13 +41,13 @@ render: (balances) => {
 
         category.forEach(account => {
 
-            let option = document.createElement("option");
+            const option = document.createElement("option");
             option.value = account.name;
             option.textContent = account.name;
             group.appendChild(option);
 
             const tr = document.createElement("tr");
-            tr.appendChild(document.createElement("td"));
+            tr.appendChild(document.createElement("td")); // Deliberately empty
             tr.appendChild(document.createElement("td")).textContent = account.name;
 
             if(balances.has(account.name))
@@ -81,6 +81,9 @@ render: (balances) => {
     tbody2.innerHTML = "";
     populate(tbody2,"revenues",general_ledger.revenues);
     populate(tbody2,"expenses",general_ledger.expenses);
+
+    one("#entry_set option[value='pankkisaamiset']").setAttribute("selected","");
+    one("#contra_entry_set option[value='maksut']").setAttribute("selected","");
 }
 
 };
