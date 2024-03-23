@@ -1,5 +1,4 @@
-const one = selectors => document.querySelector(selectors);
-const all = selectors => document.querySelectorAll(selectors);
+import {one,all} from "./query.js";
 
 export let general_ledger  = {
 

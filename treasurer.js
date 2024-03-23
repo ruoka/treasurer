@@ -1,12 +1,8 @@
+import {one,all} from "./query.js";
 import {general_ledger} from "./general_ledger.js";
 import {journal} from "./journal.js";
 
-const one = selectors => document.querySelector(selectors);
-const all = selectors => document.querySelectorAll(selectors);
-
 window.onload = () => {
-
-    general_ledger.render();
 
     const accout = () => {
 
