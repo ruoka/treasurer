@@ -27,7 +27,7 @@ window.onload = () => {
             tr.appendChild(document.createElement("td")).textContent = entry.reference;
             tr.lastChild.classList.add('reference');
             tr.appendChild(document.createElement("td")).textContent = entry.entry;
-            tr.appendChild(document.createElement("td")).textContent = entry.amount;
+            tr.appendChild(document.createElement("td")).textContent = entry.amount.toFixed(2);
             tr.appendChild(document.createElement("td")).textContent = entry.note;
             tbody.prepend(tr);
         }));
@@ -79,7 +79,7 @@ window.onload = () => {
                 div.children[0].value = transaction.entries[index].entry;
                 div.children[1].value = transaction.entries[index].date;
                 div.children[2].value = transaction.entries[index].account;
-                div.children[3].value = transaction.entries[index].amount;
+                div.children[3].value = transaction.entries[index].amount.toFixed(2);
                 ++index;
             };
             while(index < transaction.entries.length) {
@@ -92,7 +92,7 @@ window.onload = () => {
                 div.children[0].value = transaction.entries[index].entry;
                 div.children[1].value = transaction.entries[index].date;
                 div.children[2].value = transaction.entries[index].account;
-                div.children[3].value = transaction.entries[index].amount;
+                div.children[3].value = transaction.entries[index].amount.toFixed(2);;
                 ++index;
             }
         });

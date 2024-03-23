@@ -19,8 +19,14 @@ export let general_ledger  = {
         {id:6, name:"ostot"},
     ],
 
+isPnL: (account) => {
+    return general_ledger.revenues.find(a => a.name == account) ||
+           general_ledger.expenses.find(a => a.name == account);
+},
+
 render: (balances) => {
-    let populate = (table,name,category) => {
+
+    let populate = (tbody,name,category) => {
 
         const group = document.createElement("optgroup");
         group.label = name;
@@ -31,7 +37,7 @@ render: (balances) => {
         th.textContent = name;
         tr.appendChild(th);
         tr.appendChild(document.createElement("th"));
-        table.append(tr);
+        tbody.append(tr);
 
         category.forEach(account => {
 
@@ -43,13 +49,15 @@ render: (balances) => {
             const tr = document.createElement("tr");
             tr.appendChild(document.createElement("td"));
             tr.appendChild(document.createElement("td")).textContent = account.name;
-            if(balances !== undefined && balances.has(account.name))
-                tr.appendChild(document.createElement("td")).textContent = balances.get(account.name);
-            else
-                tr.appendChild(document.createElement("td")).textContent = 0.00;
-            table.append(tr);
 
+            if(balances.has(account.name))
+                tr.appendChild(document.createElement("td")).textContent = balances.get(account.name).toFixed(2);
+            else
+                tr.appendChild(document.createElement("td")).textContent = new Number(0.00).toFixed(2);
+
+            tbody.append(tr);
         });
+
         all("#account, .accounts").forEach(select => select.appendChild(group.cloneNode(true)));
     };
 
@@ -59,8 +67,16 @@ render: (balances) => {
     tbody1.innerHTML = "";
     populate(tbody1,"assets",general_ledger.assets);
     populate(tbody1,"net assets",general_ledger.net_assets);
-    populate(tbody1,"liabilities",general_ledger.liabilities);
 
+    const PnL = [...balances].filter(([k,v]) => general_ledger.isPnL(k)).reduce((a,[k,v]) => a+v,0);
+
+    const tr = document.createElement("tr");
+    tr.appendChild(document.createElement("td"));
+    tr.appendChild(document.createElement("td")).textContent = "PnL";
+    tr.appendChild(document.createElement("td")).textContent = new Number(PnL).toFixed(2);
+    tbody1.append(tr);
+
+    populate(tbody1,"liabilities",general_ledger.liabilities);
     const tbody2 = one("table#PnL tbody");
     tbody2.innerHTML = "";
     populate(tbody2,"revenues",general_ledger.revenues);
