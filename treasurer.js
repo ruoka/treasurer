@@ -65,15 +65,7 @@ window.onload = () => {
             tbody.append(tr);
         });
     
-        tbody = one("table#balance tbody");
-//      tbody.innerHTML = "";
-
-        balance.forEach((total,account) => {
-            const tr = document.createElement("tr");
-            tr.appendChild(document.createElement("td")).textContent = account;
-            tr.appendChild(document.createElement("td")).textContent = total.toFixed(2);
-            tbody.prepend(tr);
-        });
+        general_ledger.render(balance);
 
         all("table#ledger tbody tr, table#journal tbody tr").forEach(row => row.onclick = () => {
             let reference = row.querySelector(".reference").textContent;

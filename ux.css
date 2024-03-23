@@ -8,7 +8,11 @@ table {
     border-collapse: collapse;
 }
 
-tbody td {
+table caption {
+    font-weight: bold;
+}
+
+table caption, thead th, tbody td {
     text-align: left;
 }
 
