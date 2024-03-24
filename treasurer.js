@@ -1,6 +1,6 @@
-import { one, all } from "./query.js";
-import { general_ledger } from "./general_ledger.js";
-import { journal } from "./journal.js";
+import {one,all} from "./query.js";
+import {general_ledger} from "./general_ledger.js";
+import {journal} from "./journal.js";
 
 window.onload = () => {
 
@@ -170,7 +170,7 @@ window.onload = () => {
         button.textContent = "Remove";
         button.setAttribute("type", "button");
         button.setAttribute("onclick", "this.parentElement.remove();");
-    }
+    };
 
     one("#entry").onchange = () => all("[name=entry]").forEach(element => element.value = one("#entry").value.localeCompare("credit") ? "credit" : "debit");
 
