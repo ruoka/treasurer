@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": "../net4cpp"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.hpp": "cpp",
+			"*.cpp": "cpp",
+			"*.c++": "cpp",
+			"*.c++m": "cpp"
+		},
+		"terminal.integrated.gpuAcceleration": "off",
+		"git.ignoredRepositories": [
+			"/workspaces/net4cpp/googletest"
+		]
+	}
+}

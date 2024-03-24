@@ -7,11 +7,6 @@ window.onload = () => {
     const accout = () => {
 
         one("#reset").click();
-        one("#created").value = new Date().toISOString().split("T")[0];
-        one("#date").value = one("#created").value;
-        all("[name=date]").forEach(element => element.value = one("#date").value);
-
-        const ledger = [];
 
         let tbody = one("table#journal tbody");
         tbody.innerHTML = "";
@@ -20,11 +15,9 @@ window.onload = () => {
             entry.number = transaction.header.number;
             entry.reference = transaction.header.reference;
             entry.note = transaction.header.note;
-            ledger.push(entry);
-
             const tr = document.createElement("tr");
             tr.appendChild(document.createElement("td")).textContent = entry.number;
-            tr.lastChild.classList.add('reference');
+            tr.lastChild.classList.add('number');
             tr.appendChild(document.createElement("td")).textContent = entry.date;
             tr.appendChild(document.createElement("td")).textContent = entry.account;
             tr.appendChild(document.createElement("td")).textContent = entry.entry;
@@ -35,6 +28,8 @@ window.onload = () => {
             tbody.prepend(tr);
         }));
 
+        const ledger = [];
+        journal.forEach(transaction => ledger.push(...transaction.entries));
         ledger.sort((lhs, rhs) => rhs.account.localeCompare(lhs.account) ? rhs.account.localeCompare(lhs.account) : lhs.date.localeCompare(rhs.date));
 
         const balances = new Map();
@@ -49,12 +44,12 @@ window.onload = () => {
                 account = entry.account;
                 subtotal = 0.00;
             }
-            subtotal += (entry.entry.localeCompare("credit") ? -1 : 1) * entry.amount;
+            subtotal += ("credit".localeCompare(entry.entry) ? -1 : 1) * entry.amount;
             balances.set(entry.account, subtotal);
 
             const tr = document.createElement("tr");
             tr.appendChild(document.createElement("td")).textContent = entry.number;
-            tr.lastChild.classList.add('reference');
+            tr.lastChild.classList.add('number');
             tr.appendChild(document.createElement("td")).textContent = entry.date;
             tr.appendChild(document.createElement("td")).textContent = entry.account;
             tr.appendChild(document.createElement("td")).textContent = entry.entry;
@@ -122,45 +117,44 @@ window.onload = () => {
         populate(tbody2, "expenses", general_ledger.expenses);
 
         one("#entry_set option[value='pankkisaamiset']").setAttribute("selected", "");
+
         one("#contra_entry_set option[value='maksut']").setAttribute("selected", "");
-    }
 
-    all("table#ledger tbody tr, table#journal tbody tr").forEach(row => row.onclick = () => {
-        let number = row.querySelector(".reference").textContent;
-        alert(`${number}`);
-
-        const transaction = journal.find(trans => trans.header.number == number);
-        one("#number").value = transaction.header.number;
-        one("#created").value = transaction.header.created;
-        one("#reference").value = transaction.header.reference;
-        one("#note").value = transaction.header.note;
-        one("#file").value = transaction.header.file;
-
-        const divs = all("fieldset#entries div");
-        let index = 0;
-        for (let div of divs) {
-            div.children[0].value = transaction.entries[index].entry;
-            div.children[1].value = transaction.entries[index].date;
-            div.children[2].value = transaction.entries[index].account;
-            div.children[3].value = transaction.entries[index].amount.toFixed(2);
-            ++index;
-        };
-        while (index < transaction.entries.length) {
-            const div = one("#entries").appendChild(one("#contra_entry_set").cloneNode(true));
-            const button = div.appendChild(document.createElement("button"));
-            button.textContent = "Remove";
-            button.setAttribute("type", "button");
-            button.setAttribute("onclick", "this.parentElement.remove();");
-
-            div.children[0].value = transaction.entries[index].entry;
-            div.children[1].value = transaction.entries[index].date;
-            div.children[2].value = transaction.entries[index].account;
-            div.children[3].value = transaction.entries[index].amount.toFixed(2);;
-            ++index;
-        }
-    });
-
-    accout();
+        all("table#ledger tbody tr, table#journal tbody tr").forEach(row => row.onclick = () => {
+            let number = row.querySelector(".number").textContent;
+            alert(`${number}`);
+    
+            const transaction = journal.find(t => t.header.number == number);
+            one("#number").value = transaction.header.number;
+            one("#created").value = transaction.header.created;
+            one("#reference").value = transaction.header.reference;
+            one("#note").value = transaction.header.note;
+            one("#file").value = transaction.header.file;
+    
+            const divs = all("fieldset#entries div");
+            let index = 0;
+            for (let div of divs) {
+                div.children[0].value = transaction.entries[index].entry;
+                div.children[1].value = transaction.entries[index].date;
+                div.children[2].value = transaction.entries[index].account;
+                div.children[3].value = transaction.entries[index].amount.toFixed(2);
+                ++index;
+            };
+            while (index < transaction.entries.length) {
+                const div = one("#entries").appendChild(one("#contra_entry_set").cloneNode(true));
+                const button = div.appendChild(document.createElement("button"));
+                button.textContent = "Remove";
+                button.setAttribute("type", "button");
+                button.setAttribute("onclick", "this.parentElement.remove();");
+    
+                div.children[0].value = transaction.entries[index].entry;
+                div.children[1].value = transaction.entries[index].date;
+                div.children[2].value = transaction.entries[index].account;
+                div.children[3].value = transaction.entries[index].amount.toFixed(2);;
+                ++index;
+            }
+        });    
+    };
 
     one("#created").onchange = () => all("#date, [name=date]").forEach(element => element.value = one("#created").value);
 
@@ -194,7 +188,7 @@ window.onload = () => {
         };
 
         if (transaction.header.number == 0)
-            transaction.header.number = journal.map(j => j.header.number).reduce((n1, n2) => n1 > n2 ? n1 : n2, 0) + 1;
+            transaction.header.number = journal.map(t => t.header.number).reduce((n1, n2) => n1 > n2 ? n1 : n2, 0) + 1;
 
         let credits = 0.00;
         let debits = 0.00;
@@ -221,7 +215,7 @@ window.onload = () => {
         } else {
             alert(`Success: The ${divs.length} entries for transaction ${transaction.header.reference} are matching. Total credits/debits are ${credits} €`);
             if (update) {
-                const index = journal.findIndex(existing => !transaction.header.reference.localeCompare(existing.header.reference));
+                const index = journal.findIndex(existing => existing.header.number == transaction.header.number);
                 journal[index] = transaction;
             } else {
                 journal.push(transaction);
@@ -230,11 +224,16 @@ window.onload = () => {
         }
     };
 
-    one("#transaction").onreset = () => {
+    one("#transaction").onreset = event => {
+        event.preventDefault();
+        all("form fieldset fieldset input, form fieldset fieldset textarea").forEach(input => input.value = "");
         const divs = all("fieldset#entries :nth-child(1n+5)");
         for (let div of divs) {
             div.remove();
         }
+        one("#number").value = 0;
+        one("#created").value = new Date().toISOString().split("T")[0];
+        all("#date, [name=date]").forEach(element => element.value = one("#created").value);
     };
 
     one("#save").onclick = () => {
@@ -247,4 +246,6 @@ window.onload = () => {
         a.click();
         URL.revokeObjectURL(a.href);
     };
+
+    accout();
 };
