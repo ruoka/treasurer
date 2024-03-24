@@ -15,19 +15,22 @@ window.onload = () => {
     
         let tbody = one("table#journal tbody");
         tbody.innerHTML = "";
-    
+
         journal.forEach(transaction => transaction.entries.forEach(entry => {
+            entry.number = transaction.header.number;
             entry.reference = transaction.header.reference;
             entry.note = transaction.header.note;
             ledger.push(entry);
     
             const tr = document.createElement("tr");
+            tr.appendChild(document.createElement("td")).textContent = entry.number;
+            tr.lastChild.classList.add('reference');
             tr.appendChild(document.createElement("td")).textContent = entry.date;
             tr.appendChild(document.createElement("td")).textContent = entry.account;
-            tr.appendChild(document.createElement("td")).textContent = entry.reference;
-            tr.lastChild.classList.add('reference');
             tr.appendChild(document.createElement("td")).textContent = entry.entry;
             tr.appendChild(document.createElement("td")).textContent = entry.amount.toFixed(2);
+            tr.appendChild(document.createElement("td")); // intentionally empty
+            tr.appendChild(document.createElement("td")).textContent = entry.reference;
             tr.appendChild(document.createElement("td")).textContent = entry.note;
             tbody.prepend(tr);
         }));
@@ -42,7 +45,7 @@ window.onload = () => {
         tbody.innerHTML = "";
 
         ledger.forEach(entry => {
-            if(account.localeCompare(entry.account)) {
+            if(account.localeCompare(entry.account)) { // is same returns 0 == false
                 account = entry.account;
                 subtotal = 0.00;
             }
@@ -50,13 +53,14 @@ window.onload = () => {
             balances.set(entry.account,subtotal);
     
             const tr = document.createElement("tr");
-            tr.appendChild(document.createElement("td")).textContent = entry.account;
-            tr.appendChild(document.createElement("td")).textContent = entry.date;
-            tr.appendChild(document.createElement("td")).textContent = entry.reference;
+            tr.appendChild(document.createElement("td")).textContent = entry.number;
             tr.lastChild.classList.add('reference');
+            tr.appendChild(document.createElement("td")).textContent = entry.date;
+            tr.appendChild(document.createElement("td")).textContent = entry.account;
             tr.appendChild(document.createElement("td")).textContent = entry.entry;
             tr.appendChild(document.createElement("td")).textContent = entry.amount.toFixed(2);
             tr.appendChild(document.createElement("td")).textContent = subtotal.toFixed(2);
+            tr.appendChild(document.createElement("td")).textContent = entry.reference;
             tr.appendChild(document.createElement("td")).textContent = entry.note;
             tbody.append(tr);
         });
@@ -64,10 +68,11 @@ window.onload = () => {
         general_ledger.render(balances);
 
         all("table#ledger tbody tr, table#journal tbody tr").forEach(row => row.onclick = () => {
-            let reference = row.querySelector(".reference").textContent;
-            alert(`Hello ${reference}!`);
+            let number = row.querySelector(".reference").textContent;
+            alert(`${number}`);
 
-            const transaction = journal.find(trans => !reference.localeCompare(trans.header.reference));
+            const transaction = journal.find(trans => trans.header.number == number);
+            one("#number").value = transaction.header.number;
             one("#created").value = transaction.header.created;
             one("#reference").value = transaction.header.reference;
             one("#note").value = transaction.header.note;
@@ -122,6 +127,7 @@ window.onload = () => {
     
         const transaction = {
             header: {
+                number: one("#number").value,
                 created: one("#created").value,
                 reference: one("#reference").value,
                 note: one("#note").value,
@@ -129,6 +135,9 @@ window.onload = () => {
             },
             entries: []
         };
+
+        if(transaction.header.number == 0)
+            transaction.header.number = journal.map(j => j.header.number).reduce((n1,n2) => n1 > n2 ? n1 : n2, 0) + 1;
 
         let credits = 0.00;
         let debits = 0.00; 
@@ -147,8 +156,8 @@ window.onload = () => {
     
         const update = one("#update").checked;
 
-        if(update == false && journal.some(existing => !transaction.header.reference.localeCompare(existing.header.reference))) {
-            alert(`Error: Transaction with reference ${transaction.header.reference} already exists`);
+        if(update == false && journal.some(existing => existing.header.number == transaction.header.number)) {
+            alert(`Error: Transaction with number ${transaction.header.number} already exists`);
         }
         else if(credits !== debits) {
             alert(`Error: The ${divs.length} entries for transaction ${transaction.header.reference} are not matching. Difference is ${credits - debits} €`);

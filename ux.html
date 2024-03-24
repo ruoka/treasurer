@@ -18,6 +18,7 @@
 
             <fieldset>
                 <legend>Header</legend>
+                <input id="number" type="number" value=0 hidden>
                 <label for="created">Created</label><input id="created" type="date" required>
                 <br>
                 <label for="reference">Reference</label><input id="reference" type="text" required>
@@ -53,8 +54,8 @@
                 </div>
 
             </fieldset>
-            <input id="reset" type="reset" value="Reset">
             <input id="submit" type="submit" value="Submit">
+            <input id="reset" type="reset" value="Reset">
             <label for="update">Update</label>
             <input id="update" type="checkbox">
         </fieldset>
@@ -92,11 +93,13 @@
         <caption>Journal</caption>
         <thead>
             <tr>
+                <th>No</th>
                 <th>Date</th>
                 <th>Account</th>
-                <th>Reference</th>
                 <th>Entry</th>
                 <th>Amount</th>
+                <th></th>
+                <th>Reference</th>
                 <th>Note</th>
             </tr>
             <tbody><!--javascript will add the rows here--></tbody>
@@ -109,12 +112,13 @@
         <caption>General Ledger</caption>
         <thead>
             <tr>
-                <th>Account</th>
+                <th>No</th>
                 <th>Date</th>
-                <th>Reference</th>
+                <th>Account</th>
                 <th>Entry</th>
                 <th>Amount</th>
                 <th>Subtotal</th>
+                <th>Reference</th>
                 <th>Note</th>
             </tr>
         </thead>
