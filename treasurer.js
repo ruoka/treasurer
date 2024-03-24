@@ -153,7 +153,8 @@ window.onload = () => {
                 div.children[3].value = transaction.entries[index].amount.toFixed(2);;
                 ++index;
             }
-        });    
+            one("#created").focus();
+        });
     };
 
     one("#created").onchange = () => all("#date, [name=date]").forEach(element => element.value = one("#created").value);
