@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON File Reader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #content {
+            margin-top: 20px;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        button {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <button id="openFile">Open JSON File</button>
+        <div id="content"></div>
+    </div>
+
+    <script>
+        async function handleFileSelect() {
+            try {
+                const [fileHandle] = await window.showOpenFilePicker({
+                    types: [{
+                        description: 'JSON Files',
+                        accept: {
+                            'application/json': ['.json'],
+                        },
+                    }],
+                });
+                
+                const file = await fileHandle.getFile();
+                const content = await file.text();
+                const jsonData = JSON.parse(content); // JSON string to JS object
+
+                // Convert JSON object to array if it isn't already
+                let arrayData;
+                if (Array.isArray(jsonData)) {
+                    arrayData = jsonData;
+                } else {
+                    // If JSON is an object, convert it to an array of its values
+                    arrayData = Object.values(jsonData);
+                }
+
+                // Display the data on the webpage
+                const contentDiv = document.getElementById('content');
+                contentDiv.innerHTML = '';
+                
+                arrayData.forEach(item => {
+                    const p = document.createElement('p');
+                    p.textContent = JSON.stringify(item); // or access specific properties if known
+                    contentDiv.appendChild(p);
+                });
+
+                console.log('Array data:', arrayData);
+                
+            } catch (error) {
+                console.error('Error loading or parsing JSON:', error);
+            }
+        }
+
+        // Attach click event to the button
+        document.getElementById('openFile').addEventListener('click', handleFileSelect);
+    </script>
+</body>
+</html>

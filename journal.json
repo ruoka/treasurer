@@ -1,0 +1,93 @@
+[
+    {
+      "header": {
+        "reference": "A1",
+        "note": null,
+        "file": null
+      },
+      "entries": [
+        {
+          "entry": "debit",
+          "date": "2023-12-10",
+          "account": "bank deposits",
+          "amount": 11.11,
+          "reference": "A1"
+        },
+        {
+          "entry": "credit",
+          "date": "2023-12-10",
+          "account": "fees",
+          "amount": 11.11,
+          "reference": "A1"
+        }
+      ]
+    },
+    {
+      "header": {
+        "reference": "A2",
+        "note": null,
+        "file": null
+      },
+      "entries": [
+        {
+          "entry": "credit",
+          "date": "2023-12-10",
+          "account": "bank deposits",
+          "amount": 22.22,
+          "reference": "A2"
+        },
+        {
+          "entry": "debit",
+          "date": "2023-12-10",
+          "account": "fees",
+          "amount": 11.11,
+          "reference": "A2"
+        },
+        {
+          "entry": "debit",
+          "date": "2023-12-10",
+          "account": "taxes",
+          "amount": 11.11,
+          "reference": "A2"
+        }
+      ]
+    },
+    {
+      "header": {
+        "created": "2023-12-10",
+        "reference": "xxxx",
+        "note": "",
+        "file": ""
+      },
+      "entries": [
+        {
+          "entry": "debit",
+          "date": "2023-12-10",
+          "account": "bank deposits",
+          "amount": "4",
+          "reference": "xxxx"
+        },
+        {
+          "entry": "credit",
+          "date": "2023-12-10",
+          "account": "does",
+          "amount": "2",
+          "reference": "xxxx"
+        },
+        {
+          "entry": "credit",
+          "date": "2023-12-10",
+          "account": "fees",
+          "amount": "1",
+          "reference": "xxxx"
+        },
+        {
+          "entry": "credit",
+          "date": "2023-12-10",
+          "account": "costs",
+          "amount": "1",
+          "reference": "xxxx"
+        }
+      ]
+    }
+  ]
