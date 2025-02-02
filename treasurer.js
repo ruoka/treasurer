@@ -63,7 +63,7 @@ window.onload = () => {
         const populate = (tbody, name, category) => {
 
             const group = document.createElement("optgroup");
-            group.label = name;
+            group.name = name;
 
             const tr = document.createElement("tr");
             const th = document.createElement("th");
@@ -116,7 +116,7 @@ window.onload = () => {
         populate(tbody2, "revenues", general_ledger.revenues);
         populate(tbody2, "expenses", general_ledger.expenses);
 
-        one("#entry_set option[value='pankkisaamiset']").setAttribute("selected", "");
+        one("#entry_set option[value='Rahat ja pankkisaamiset']").setAttribute("selected", "");
 
         one("#contra_entry_set option[value='maksut']").setAttribute("selected", "");
 
