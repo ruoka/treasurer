@@ -167,13 +167,13 @@ window.onload = () => {
         button.setAttribute("onclick", "this.parentElement.remove();");
     };
 
-    one("#entry").onchange = () => all("[name=entry]").forEach(element => element.value = one("#entry").value.localeCompare("credit") ? "credit" : "debit");
+    one("#entry").onchange = async () => all("[name=entry]").forEach(element => element.value = one("#entry").value.localeCompare("credit") ? "credit" : "debit");
 
-    one("#date").onchange = () => all("[name=date]").forEach(element => element.value = one("#date").value);
+    one("#date").onchange = async () => all("[name=date]").forEach(element => element.value = one("#date").value);
 
-    one("#amount").onchange = () => all("[name=amount]").forEach(element => element.value = one("#amount").value);
+    one("#amount").onchange = async () => all("[name=amount]").forEach(element => element.value = one("#amount").value);
 
-    one("#transaction").onsubmit = event => {
+    one("#transaction").onsubmit = async event => {
 
         event.preventDefault();
 
@@ -225,7 +225,7 @@ window.onload = () => {
         }
     };
 
-    one("#transaction").onreset = event => {
+    one("#transaction").onreset = async event => {
         event.preventDefault();
         all("form fieldset fieldset input, form fieldset fieldset textarea").forEach(input => input.value = "");
         const divs = all("fieldset#entries :nth-child(1n+5)");
@@ -237,16 +237,33 @@ window.onload = () => {
         all("#date, [name=date]").forEach(element => element.value = one("#created").value);
     };
 
-    one("#save").onclick = () => {
-        const a = document.createElement('a');
-        const content = "let journal = " + JSON.stringify(journal) + ";";
-        const file = new Blob([content], { type: "application/javascript" });
-        a.href = URL.createObjectURL(file);
-        a.download = "test.js";
-        a.target = "_blank"
-        a.click();
-        URL.revokeObjectURL(a.href);
+    one("#open").onclick = async () => {
+        const [fileHandle] = await window.showOpenFilePicker({
+            types: [{
+                description: 'JSON Files',
+                accept: {
+                    'application/json': ['.json'],
+                },
+            }],
+        });
+        const file = await fileHandle.getFile();
+        const content = await file.text();
+        journal.push(...JSON.parse(content));
+        accout();
     };
 
-    accout();
+    one("#save").onclick = async () => {
+        const handle = await window.showSaveFilePicker({
+            suggestedName: 'example.json',
+            types: [{
+                description: 'JSON Files',
+                accept: {
+                    'application/json': ['.json'],
+                }
+            }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(JSON.stringify(journal,null,2));
+        await writable.close();
+    };
 };

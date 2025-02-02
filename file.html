@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSON File Reader</title>
+    <title>File Handling Demo</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,16 +21,8 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        #content {
-            margin-top: 20px;
-            text-align: left;
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            padding: 10px;
-        }
         button {
-            background-color: #4CAF50; /* Green */
+            background-color: #4CAF50;
             border: none;
             color: white;
             padding: 15px 32px;
@@ -42,16 +34,25 @@
             cursor: pointer;
             border-radius: 5px;
         }
+        #fileContent {
+            margin-top: 20px;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
     <div id="container">
         <button id="openFile">Open JSON File</button>
-        <div id="content"></div>
+        <button id="saveFile">Save JSON File</button>
+        <div id="fileContent"></div>
     </div>
 
     <script>
-        async function handleFileSelect() {
+        async function handleFileOpen() {
             try {
                 const [fileHandle] = await window.showOpenFilePicker({
                     types: [{
@@ -64,36 +65,46 @@
                 
                 const file = await fileHandle.getFile();
                 const content = await file.text();
-                const jsonData = JSON.parse(content); // JSON string to JS object
+                const jsonData = JSON.parse(content);
 
-                // Convert JSON object to array if it isn't already
-                let arrayData;
-                if (Array.isArray(jsonData)) {
-                    arrayData = jsonData;
-                } else {
-                    // If JSON is an object, convert it to an array of its values
-                    arrayData = Object.values(jsonData);
-                }
-
-                // Display the data on the webpage
-                const contentDiv = document.getElementById('content');
-                contentDiv.innerHTML = '';
-                
-                arrayData.forEach(item => {
-                    const p = document.createElement('p');
-                    p.textContent = JSON.stringify(item); // or access specific properties if known
-                    contentDiv.appendChild(p);
-                });
-
-                console.log('Array data:', arrayData);
+                document.getElementById('fileContent').innerText = JSON.stringify(jsonData, null, 2);
+                console.log('File opened:', jsonData);
                 
             } catch (error) {
-                console.error('Error loading or parsing JSON:', error);
+                console.error('Error opening file:', error);
             }
         }
 
-        // Attach click event to the button
-        document.getElementById('openFile').addEventListener('click', handleFileSelect);
+        async function handleFileSave() {
+            try {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: 'example.json',
+                    types: [{
+                        description: 'JSON Files',
+                        accept: {
+                            'application/json': ['.json'],
+                        }
+                    }]
+                });
+                
+                const writable = await handle.createWritable();
+
+                // Here we're saving some dummy data. In a real scenario, this would be your data to save.
+                const dataToSave = {
+                    "example": "This is an example JSON data to save."
+                };
+                await writable.write(JSON.stringify(dataToSave, null, 2));
+                
+                await writable.close();
+
+                console.log('File saved successfully');
+            } catch (error) {
+                console.error('Error saving file:', error);
+            }
+        }
+
+        document.getElementById('openFile').addEventListener('click', handleFileOpen);
+        document.getElementById('saveFile').addEventListener('click', handleFileSave);
     </script>
 </body>
 </html>
