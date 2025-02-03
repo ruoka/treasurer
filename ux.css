@@ -2,6 +2,10 @@ html {
     font-family: "helvetica neue", helvetica, arial, sans-serif;
 }
 
+#note {
+    width: 500px;
+}
+
 table {
     table-layout: fixed;
     width: 100%;
@@ -22,4 +26,14 @@ tbody tr:nth-child(odd) {
 
 tbody tr:nth-child(even) {
     background-color: #ffffff;
+}
+
+table {
+    width: 100%; /* Or a specific width if you prefer */
+    border-collapse: collapse; /* Optional, but often recommended */
+  }
+  
+#balance td:nth-child(2), #income td:nth-child(2), /* Target the second (middle) column cells */
+#balance th:nth-child(2), #income th:nth-child(2) {
+    width: 75%; /* Adjust this percentage as needed */
 }

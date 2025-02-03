@@ -8,8 +8,8 @@ window.onload = () => {
 
         one("#reset").click();
 
-        let tbody = one("table#journal tbody");
-        tbody.innerHTML = "";
+        const tbody1 = one("table#journal tbody");
+        tbody1.innerHTML = "";
 
         journal.forEach(transaction => transaction.entries.forEach(entry => {
             entry.number = transaction.header.number;
@@ -25,7 +25,7 @@ window.onload = () => {
             tr.appendChild(document.createElement("td")); // intentionally empty
             tr.appendChild(document.createElement("td")).textContent = entry.reference;
             tr.appendChild(document.createElement("td")).textContent = entry.note;
-            tbody.prepend(tr);
+            tbody1.prepend(tr);
         }));
 
         const ledger = [];
@@ -36,8 +36,8 @@ window.onload = () => {
         let account = "";
         let subtotal = 0.00;
 
-        tbody = one("table#ledger tbody");
-        tbody.innerHTML = "";
+        const tbody2 = one("table#ledger tbody");
+        tbody2.innerHTML = "";
 
         ledger.forEach(entry => {
             if (account.localeCompare(entry.account)) { // is same returns 0 == false
@@ -57,7 +57,7 @@ window.onload = () => {
             tr.appendChild(document.createElement("td")).textContent = subtotal.toFixed(2);
             tr.appendChild(document.createElement("td")).textContent = entry.reference;
             tr.appendChild(document.createElement("td")).textContent = entry.note;
-            tbody.append(tr);
+            tbody2.append(tr);
         });
 
         const populate = (tbody, name, category) => {
@@ -65,27 +65,21 @@ window.onload = () => {
             const group = document.createElement("optgroup");
             group.name = name;
 
-            const tr = document.createElement("tr");
-            const th = document.createElement("th");
-            th.setAttribute("colspan", "2");
-            th.textContent = name;
-            tr.appendChild(th);
-            tr.appendChild(document.createElement("th"));
-            tbody.append(tr);
-
             category.forEach(account => {
 
-                const option = document.createElement("option");
-                option.value = account.name;
-                option.textContent = account.name;
-                group.appendChild(option);
+                if(account.open) {
+                    const option = document.createElement("option");
+                    option.value = account.code_prelabel_fi;
+                    option.textContent = account.account + ' - ' + account.code_prelabel_fi;
+                    group.appendChild(option);
+                }
 
                 const tr = document.createElement("tr");
-                tr.appendChild(document.createElement("td")); // Deliberately empty
-                tr.appendChild(document.createElement("td")).textContent = account.name;
+                tr.appendChild(document.createElement("td")).textContent = account.account;
+                tr.appendChild(document.createElement("td")).textContent = account.code_prelabel_fi;
 
-                if (balances.has(account.name))
-                    tr.appendChild(document.createElement("td")).textContent = balances.get(account.name).toFixed(2);
+                if (balances.has(account.code_prelabel_fi))
+                    tr.appendChild(document.createElement("td")).textContent = balances.get(account.code_prelabel_fi).toFixed(2);
                 else
                     tr.appendChild(document.createElement("td")).textContent = new Number(0.00).toFixed(2);
 
@@ -97,28 +91,17 @@ window.onload = () => {
 
         all("#account, .accounts").forEach(select => select.innerHTML = "");
 
-        const tbody1 = one("table#balance tbody");
-        tbody1.innerHTML = "";
-        populate(tbody1, "assets", general_ledger.assets);
-        populate(tbody1, "net assets", general_ledger.net_assets);
+        const tbody3 = one("table#balance tbody");
+        tbody3.innerHTML = "";
+        populate(tbody3, "tase", general_ledger.balance_sheet);
 
-        const PnL = [...balances].filter(([k, v]) => general_ledger.isPnL(k)).reduce((a, [k, v]) => a + v, 0);
-
-        const tr = document.createElement("tr");
-        tr.appendChild(document.createElement("td"));
-        tr.appendChild(document.createElement("td")).textContent = "PnL";
-        tr.appendChild(document.createElement("td")).textContent = new Number(PnL).toFixed(2);
-        tbody1.append(tr);
-
-        populate(tbody1, "liabilities", general_ledger.liabilities);
-        const tbody2 = one("table#PnL tbody");
-        tbody2.innerHTML = "";
-        populate(tbody2, "revenues", general_ledger.revenues);
-        populate(tbody2, "expenses", general_ledger.expenses);
+        const tbody4 = one("table#income tbody");
+        tbody4.innerHTML = "";
+        populate(tbody4, "tulos laskelma", general_ledger.income_statement);
 
         one("#entry_set option[value='Rahat ja pankkisaamiset']").setAttribute("selected", "");
 
-        one("#contra_entry_set option[value='maksut']").setAttribute("selected", "");
+        one("#contra_entry_set option[value='Tuotot, varsinainen toiminta']").setAttribute("selected", "");
 
         all("table#ledger tbody tr, table#journal tbody tr").forEach(row => row.onclick = () => {
             let number = row.querySelector(".number").textContent;
@@ -133,6 +116,7 @@ window.onload = () => {
     
             const divs = all("fieldset#entries div");
             let index = 0;
+
             for (let div of divs) {
                 div.children[0].value = transaction.entries[index].entry;
                 div.children[1].value = transaction.entries[index].date;
@@ -140,6 +124,7 @@ window.onload = () => {
                 div.children[3].value = transaction.entries[index].amount.toFixed(2);
                 ++index;
             };
+        
             while (index < transaction.entries.length) {
                 const div = one("#entries").appendChild(one("#contra_entry_set").cloneNode(true));
                 const button = div.appendChild(document.createElement("button"));
@@ -162,7 +147,7 @@ window.onload = () => {
     one("#add").onclick = () => {
         const div = one("#entries").appendChild(one("#contra_entry_set").cloneNode(true));
         const button = div.appendChild(document.createElement("button"));
-        button.textContent = "Remove";
+        button.textContent = "Poista"; // FIXME
         button.setAttribute("type", "button");
         button.setAttribute("onclick", "this.parentElement.remove();");
     };
@@ -183,7 +168,6 @@ window.onload = () => {
                 created: one("#created").value,
                 reference: one("#reference").value,
                 note: one("#note").value,
-                file: one("#file").value
             },
             entries: []
         };
@@ -266,4 +250,6 @@ window.onload = () => {
         await writable.write(JSON.stringify(journal,null,2));
         await writable.close();
     };
+
+    accout();
 };

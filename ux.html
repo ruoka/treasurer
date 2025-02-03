@@ -2,37 +2,33 @@
 <html lang="en">
 
 <head>
-    <title>Treasurer</title>
+    <title>Rahuri</title>
     <link href="ux.css" rel="stylesheet" type="text/css">
     <script src="./treasurer.js" type="module"></script>
 </head>
 
 <body>
 
-    <button id="open" type="button">Open</button>
-    <button id="save" type="button">Save</button>
+    <button id="open" type="button">Avaa</button>
+    <button id="save" type="button">Tallenna</button>
 
     <form id="transaction">
 
         <fieldset>
-            <legend>Transaction</legend>
+            <legend>Tapahtuman</legend>
 
             <fieldset>
-                <legend>Header</legend>
+                <legend>Otsikon</legend>
                 <input id="number" type="number" value=0 hidden>
-                <label for="created">Created</label><input id="created" type="date" required>
-                <br>
-                <label for="reference">Reference</label><input id="reference" type="text" required>
-                <br>
-                <label for="note">Note</label><br><textarea id="note"></textarea>
-                <br>
-                <input id="file" type="file">
+                <label for="reference">Viite</label><input id="reference" type="text" required>
+                <label for="created">Päivä</label><input id="created" type="date" required>
+                <label for="note">Selite</label><input id="note">
                 <br>
             </fieldset>
 
             <fieldset id="entries">
-                <legend>Entries</legend>
-                <button id="add" type="button">Add</button>
+                <legend>Rivit</legend>
+                <button id="add" type="button">Lisää</button>
 
                 <div id="entry_set">
                     <select id="entry">
@@ -55,9 +51,9 @@
                 </div>
 
             </fieldset>
-            <input id="submit" type="submit" value="Submit">
-            <input id="reset" type="reset" value="Reset">
-            <label for="update">Update</label>
+            <input id="submit" type="submit" value="Hyväksy">
+            <input id="reset" type="reset" value="Nollaa">
+            <label for="update">Päivitä</label>
             <input id="update" type="checkbox">
         </fieldset>
     </form>
@@ -65,11 +61,12 @@
     <br>
 
     <table id="balance">
-        <caption>Balance Sheet</caption>
+        <caption>TASE</caption>
         <thead>
             <tr>
-                <th colspan="2">Account</th>
-                <th>Amount</th>
+                <th>Tili</th>
+                <th>Selite</th>
+                <th>Summa</th>
             </tr>
         </thead>
         <tbody><!--javascript will add the rows here--></tbody>
@@ -77,12 +74,13 @@
 
     <br>
 
-    <table id="PnL">
-        <caption>Profit and Loss</caption>
+    <table id="income">
+        <caption>Tuloslaskelma</caption>
         <thead>
             <tr>
-                <th colspan="2">Account</th>
-                <th>Amount</th>
+                <th>Tili</th>
+                <th>Selite</th>
+                <th>Summa</th>
             </tr>
         </thead>
         <tbody><!--javascript will add the rows here--></tbody>
@@ -91,7 +89,7 @@
     <br>
  
     <table id="journal">
-        <caption>Journal</caption>
+        <caption>Päiväkirja</caption>
         <thead>
             <tr>
                 <th>No</th>
@@ -110,7 +108,7 @@
     <br>
 
     <table id="ledger">
-        <caption>General Ledger</caption>
+        <caption>Tilikirja</caption>
         <thead>
             <tr>
                 <th>No</th>
