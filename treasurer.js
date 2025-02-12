@@ -20,6 +20,7 @@ window.onload = () => {
             tr.lastChild.classList.add('number');
             tr.appendChild(document.createElement("td")).textContent = entry.date;
             tr.appendChild(document.createElement("td")).textContent = entry.account;
+            tr.appendChild(document.createElement("td")).textContent = entry.label;
             tr.appendChild(document.createElement("td")).textContent = entry.entry;
             tr.appendChild(document.createElement("td")).textContent = entry.amount.toFixed(2);
             tr.appendChild(document.createElement("td")); // intentionally empty
@@ -33,6 +34,9 @@ window.onload = () => {
         ledger.sort((lhs, rhs) => rhs.account.localeCompare(lhs.account) ? rhs.account.localeCompare(lhs.account) : lhs.date.localeCompare(rhs.date));
 
         const balances = new Map();
+        let assets = 0.00;
+        let liabilities = 0.00;
+        let income = 0.00;
         let account = "";
         let subtotal = 0.00;
 
@@ -40,11 +44,28 @@ window.onload = () => {
         tbody2.innerHTML = "";
 
         ledger.forEach(entry => {
+
+            const amount = ("credit".localeCompare(entry.entry) ? -1 : 1) * entry.amount;
+
+            if(entry.account.startsWith('1')) {
+                assets += amount;
+                balances.set('1000', assets);
+            } else {
+                liabilities += amount;
+                balances.set('2000', liabilities);
+            }
+ 
+            if(!(entry.account.startsWith('1') || entry.account.startsWith('2'))) {
+                income += amount;
+                balances.set('2130', income);
+            }
+
             if (account.localeCompare(entry.account)) { // is same returns 0 == false
                 account = entry.account;
                 subtotal = 0.00;
             }
-            subtotal += ("credit".localeCompare(entry.entry) ? -1 : 1) * entry.amount;
+
+            subtotal += amount;
             balances.set(entry.account, subtotal);
 
             const tr = document.createElement("tr");
@@ -52,6 +73,7 @@ window.onload = () => {
             tr.lastChild.classList.add('number');
             tr.appendChild(document.createElement("td")).textContent = entry.date;
             tr.appendChild(document.createElement("td")).textContent = entry.account;
+            tr.appendChild(document.createElement("td")).textContent = entry.label;
             tr.appendChild(document.createElement("td")).textContent = entry.entry;
             tr.appendChild(document.createElement("td")).textContent = entry.amount.toFixed(2);
             tr.appendChild(document.createElement("td")).textContent = subtotal.toFixed(2);
@@ -69,7 +91,7 @@ window.onload = () => {
 
                 if(account.open) {
                     const option = document.createElement("option");
-                    option.value = account.code_prelabel_fi;
+                    option.value = account.account;
                     option.textContent = account.account + ' - ' + account.code_prelabel_fi;
                     group.appendChild(option);
                 }
@@ -78,8 +100,8 @@ window.onload = () => {
                 tr.appendChild(document.createElement("td")).textContent = account.account;
                 tr.appendChild(document.createElement("td")).textContent = account.code_prelabel_fi;
 
-                if (balances.has(account.code_prelabel_fi))
-                    tr.appendChild(document.createElement("td")).textContent = balances.get(account.code_prelabel_fi).toFixed(2);
+                if (balances.has(account.account))
+                    tr.appendChild(document.createElement("td")).textContent = balances.get(account.account).toFixed(2);
                 else
                     tr.appendChild(document.createElement("td")).textContent = new Number(0.00).toFixed(2);
 
@@ -99,9 +121,9 @@ window.onload = () => {
         tbody4.innerHTML = "";
         populate(tbody4, "tulos laskelma", general_ledger.income_statement);
 
-        one("#entry_set option[value='Rahat ja pankkisaamiset']").setAttribute("selected", "");
+        one("#entry_set option[value='1240']").setAttribute("selected", "");
 
-        one("#contra_entry_set option[value='Tuotot, varsinainen toiminta']").setAttribute("selected", "");
+        one("#contra_entry_set option[value='3100']").setAttribute("selected", "");
 
         all("table#ledger tbody tr, table#journal tbody tr").forEach(row => row.onclick = () => {
             let number = row.querySelector(".number").textContent;
@@ -112,7 +134,6 @@ window.onload = () => {
             one("#created").value = transaction.header.created;
             one("#reference").value = transaction.header.reference;
             one("#note").value = transaction.header.note;
-            one("#file").value = transaction.header.file;
     
             const divs = all("fieldset#entries div");
             let index = 0;
@@ -183,6 +204,7 @@ window.onload = () => {
                 entry: div.children[0].value,
                 date: div.children[1].value,
                 account: div.children[2].value,
+                label: div.children[2].options[div.children[2].selectedIndex].text.substring(7),
                 amount: parseFloat(div.children[3].value)
             };
             credits += entry.entry.localeCompare("credit") ? 0 : entry.amount;
@@ -195,7 +217,7 @@ window.onload = () => {
         if (update == false && journal.some(existing => existing.header.number == transaction.header.number)) {
             alert(`Error: Transaction with number ${transaction.header.number} already exists`);
         }
-        else if (credits !== debits) {
+        else if (credits.toFixed(2) !== debits.toFixed(2)) {
             alert(`Error: The ${divs.length} entries for transaction ${transaction.header.reference} are not matching. Difference is ${credits - debits} €`);
         } else {
             alert(`Success: The ${divs.length} entries for transaction ${transaction.header.reference} are matching. Total credits/debits are ${credits} €`);

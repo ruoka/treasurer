@@ -7,7 +7,7 @@ export let general_ledger = {
 
     balance_sheet: [
         {
-            "account": "1xxx",
+            "account": "1000",
             "member_id": 1,
             "code": "x360",
             "code_prelabel_en": "Assets",
@@ -17,7 +17,7 @@ export let general_ledger = {
             "open": false
         },
         {
-            "account": "11xx",
+            "account": "1100",
             "member_id": 10,
             "code": "x513",
             "code_prelabel_en": "Non-current assets",
@@ -27,17 +27,7 @@ export let general_ledger = {
             "open": false
         },
         {
-            "account": "111x",
-            "member_id": 17,
-            "code": "x816",
-            "code_prelabel_en": "Tangible assets",
-            "code_prelabel_fi": "Aineelliset hyödykkeet",
-            "relation": 10,
-            "order": 12,
-            "open": true
-        },
-        {
-            "account": "112x",
+            "account": "1120",
             "member_id": 13,
             "code": "x583",
             "code_prelabel_en": "Investments",
@@ -47,7 +37,7 @@ export let general_ledger = {
             "open": true
         },
         {
-            "account": "12xx",
+            "account": "1200",
             "member_id": 7,
             "code": "x435",
             "code_prelabel_en": "Current assets",
@@ -57,17 +47,17 @@ export let general_ledger = {
             "open": false
         },
         {
-            "account": "121x",
+            "account": "1210",
             "member_id": 16,
             "code": "x807",
             "code_prelabel_en": "Stocks",
             "code_prelabel_fi": "Vaihto-omaisuus",
             "relation": 7,
             "order": 34,
-            "open": true
+            "open": false
         },
         {
-            "account": "122x",
+            "account": "1211",
             "member_id": 37,
             "code": "x1759",
             "code_prelabel_en": "Finished products",
@@ -77,7 +67,17 @@ export let general_ledger = {
             "open": true
         },
         {
-            "account": "123x",
+            "account": "1212",
+            "member_id": 35,
+            "code": "x1760",
+            "code_prelabel_en": "Other stocks",
+            "code_prelabel_fi": "Muu vaihto-omaisuus",
+            "relation": 16,
+            "order": 38,
+            "open": true
+        },
+        {
+            "account": "1230",
             "member_id": 8,
             "code": "x438",
             "code_prelabel_en": "Receivables",
@@ -107,7 +107,7 @@ export let general_ledger = {
             "open": true
         },
         {
-            "account": "124x",
+            "account": "1240",
             "member_id": 3,
             "code": "x399",
             "code_prelabel_en": "Cash and bank receivables",
@@ -117,7 +117,7 @@ export let general_ledger = {
             "open": true
         },
         {
-            "account": "2xxx",
+            "account": "2000",
             "member_id": 9,
             "code": "x481",
             "code_prelabel_en": "Liabilities",
@@ -127,7 +127,7 @@ export let general_ledger = {
             "open": false
         },
         {
-            "account": "21xx",
+            "account": "2100",
             "member_id": 2,
             "code": "x376",
             "code_prelabel_en": "Equity",
@@ -137,7 +137,7 @@ export let general_ledger = {
             "open": false
         },
         {
-            "account": "211x",
+            "account": "2110",
             "member_id": 22,
             "code": "x928",
             "code_prelabel_en": "Other funds",
@@ -167,7 +167,7 @@ export let general_ledger = {
             "open": true
         },
         {
-            "account": "212x",
+            "account": "2120",
             "member_id": 51,
             "code": "x1789",
             "code_prelabel_en": "Surplus for previous financial years (deficit)",
@@ -177,7 +177,7 @@ export let general_ledger = {
             "open": true
         },
         {
-            "account": "213x",
+            "account": "2130",
             "member_id": 52,
             "code": "x1790",
             "code_prelabel_en": "Surplus (deficit) for the financial year, equity",
@@ -187,7 +187,7 @@ export let general_ledger = {
             "open": false
         },
         {
-            "account": "22xx",
+            "account": "2200",
             "member_id": 5,
             "code": "x424",
             "code_prelabel_en": "Creditors",
@@ -197,7 +197,7 @@ export let general_ledger = {
             "open": false
         },
         {
-            "account": "221x",
+            "account": "2210",
             "member_id": 59,
             "code": "x1811",
             "code_prelabel_en": "Short-term creditors",
@@ -240,7 +240,7 @@ export let general_ledger = {
 
     income_statement: [
         {
-            "account": "31xx",
+            "account": "3100",
             "member_id": 7,
             "code": "x4221",
             "code_prelabel_en": null,
@@ -250,7 +250,7 @@ export let general_ledger = {
             "open": true
         },
         {
-            "account": "32xx",
+            "account": "3200",
             "member_id": 8,
             "code": "x4222",
             "code_prelabel_en": null,
@@ -260,7 +260,7 @@ export let general_ledger = {
             "open": true
         },
         {
-            "account": "41xx",
+            "account": "4100",
             "member_id": 12,
             "code": "x4227",
             "code_prelabel_en": null,
@@ -270,7 +270,7 @@ export let general_ledger = {
             "open": true
         },
         {
-            "account": "42xx",
+            "account": "4200",
             "member_id": 13,
             "code": "x4228",
             "code_prelabel_en": null,
@@ -280,7 +280,7 @@ export let general_ledger = {
             "open": true
         },
         {
-            "account": "51xx",
+            "account": "5100",
             "member_id": 15,
             "code": "x4230",
             "code_prelabel_en": null,
@@ -290,7 +290,7 @@ export let general_ledger = {
             "open": true
         },
         {
-            "account": "52xx",
+            "account": "5200",
             "member_id": 16,
             "code": "x4231",
             "code_prelabel_en": null,
@@ -300,7 +300,7 @@ export let general_ledger = {
             "open": true
         },
         {
-            "account": "33xx",
+            "account": "3300",
             "member_id": 19,
             "code": "x4226",
             "code_prelabel_en": null,
@@ -310,7 +310,7 @@ export let general_ledger = {
             "open": false
         },
         {
-            "account": "43xx",
+            "account": "4300",
             "member_id": 14,
             "code": "x4229",
             "code_prelabel_en": null,
@@ -320,7 +320,7 @@ export let general_ledger = {
             "open": false
         },
         {
-            "account": "53xx",
+            "account": "5300",
             "member_id": 17,
             "code": "x4232",
             "code_prelabel_en": null,
@@ -330,7 +330,7 @@ export let general_ledger = {
             "open": false
         },
         {
-            "account": "6xxx",
+            "account": "6000",
             "member_id": 1,
             "code": "x75",
             "code_prelabel_en": "Results for the financial year",
@@ -340,7 +340,7 @@ export let general_ledger = {
             "open": false
         },
         {
-            "account": "7xxx",
+            "account": "7000",
             "member_id": 3,
             "code": "x350",
             "code_prelabel_en": "Financial statement transfers + (-)",
@@ -350,7 +350,7 @@ export let general_ledger = {
             "open": false
         },
         {
-            "account": "8xxx",
+            "account": "8000",
             "member_id": 2,
             "code": "x77",
             "code_prelabel_en": "Surplus for the financial year (deficit)",

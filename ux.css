@@ -32,8 +32,18 @@ table {
     width: 100%; /* Or a specific width if you prefer */
     border-collapse: collapse; /* Optional, but often recommended */
   }
-  
-#balance td:nth-child(2), #income td:nth-child(2), /* Target the second (middle) column cells */
-#balance th:nth-child(2), #income th:nth-child(2) {
-    width: 75%; /* Adjust this percentage as needed */
+
+#balance th:nth-child(2), #balance td:nth-child(2), /* Target the second (middle) column cells */
+#income th:nth-child(2), #income td:nth-child(2) {
+    width: 65%; /* Adjust this percentage as needed */
+}
+
+#journal th:nth-child(1), #journal td:nth-child(1), #journal th:nth-child(3), #journal td:nth-child(3),
+#ledger th:nth-child(1), #ledger td:nth-child(1), #ledger th:nth-child(3), #ledger td:nth-child(3) {
+    width: 5%; /* Adjust this percentage as needed */
+}
+
+#journal th:nth-child(5), #journal td:nth-child(5),
+#ledger th:nth-child(5), #ledger td:nth-child(5) {
+    text-align: center;
 }
