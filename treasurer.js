@@ -6,6 +6,24 @@ import { mapToJornal } from "./nordea.js";
 
 window.onload = () => {
 
+    const tabs = document.querySelectorAll('.tab-link');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active class from all tabs and tab contents
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Add active class to clicked tab and corresponding content
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
+        });
+    });
+
+    // Set default active tab if needed (optional, assuming you want 'balance-income' as default)
+    document.querySelector('.tab-link[data-tab="balance-income"]').click();
+
     const accout = () => {
 
         one("#reset").click();

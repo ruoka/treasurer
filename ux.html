@@ -28,7 +28,7 @@
                 <label for="created">Päivä</label>
                 <input id="created" type="date" required>
                 <label for="note">Selite</label>
-                <input id="note" aria-label="Selite">
+                <textarea id="note" aria-label="Selite" rows="1"></textarea>
             </fieldset>
 
             <fieldset id="entries">
@@ -70,71 +70,79 @@
     <br>
 
     <section class="tables">
-        <table id="balance">
-            <caption>TASE</caption>
-            <thead>
-                <tr>
-                    <th>Tili</th>
-                    <th>Selite</th>
-                    <th>Summa</th>
-                </tr>
-            </thead>
-            <tbody><!--javascript will add the rows here--></tbody>
-        </table>
+        <div class="tabs">
+            <button class="tab-link active" data-tab="balance-income">TASE & Tuloslaskelma</button>
+            <button class="tab-link" data-tab="journal">Päiväkirja</button>
+            <button class="tab-link" data-tab="ledger">Tilikirja</button>
+        </div>
 
-        <br>
+        <div id="balance-income-tab" class="tab-content active">
+            <table id="balance">
+                <caption>TASE</caption>
+                <thead>
+                    <tr>
+                        <th>Tili</th>
+                        <th>Selite</th>
+                        <th>Summa</th>
+                    </tr>
+                </thead>
+                <tbody><!--javascript will add the rows here--></tbody>
+            </table>
 
-        <table id="income">
-            <caption>Tuloslaskelma</caption>
-            <thead>
-                <tr>
-                    <th>Tili</th>
-                    <th>Selite</th>
-                    <th>Summa</th>
-                </tr>
-            </thead>
-            <tbody><!--javascript will add the rows here--></tbody>
-        </table>
+            <br>
 
-        <br>
+            <table id="income">
+                <caption>Tuloslaskelma</caption>
+                <thead>
+                    <tr>
+                        <th>Tili</th>
+                        <th>Selite</th>
+                        <th>Summa</th>
+                    </tr>
+                </thead>
+                <tbody><!--javascript will add the rows here--></tbody>
+            </table>
+        </div>
 
-        <table id="journal">
-            <caption>Päiväkirja</caption>
-            <thead>
-                <tr>
-                    <th>Numero</th>
-                    <th>Päiväys</th>
-                    <th>Tili</th>
-                    <th>Nimike</th>
-                    <th>Credit/Debit</th>
-                    <th>Summa</th>
-                    <th></th>
-                    <th>Viite</th>
-                    <th>Viesti</th>
-                </tr>
-            </thead>
-            <tbody><!--javascript will add the rows here--></tbody>
-        </table>
+        <div id="journal-tab" class="tab-content">
+            <table id="journal">
+                <caption>Päiväkirja</caption>
+                <thead>
+                    <tr>
+                        <th>Numero</th>
+                        <th>Päiväys</th>
+                        <th>Tili</th>
+                        <th>Nimike</th>
+                        <th>Credit/Debit</th>
+                        <th>Summa</th>
+                        <th></th>
+                        <th>Viite</th>
+                        <th>Viesti</th>
+                    </tr>
+                </thead>
+                <tbody><!--javascript will add the rows here--></tbody>
+            </table>
+        </div>
 
-        <br>
-
-        <table id="ledger">
-            <caption>Tilikirja</caption>
-            <thead>
-                <tr>
-                    <th>Numero</th>
-                    <th>Päiväys</th>
-                    <th>Tili</th>
-                    <th>Nimike</th>
-                    <th>Credit/Debit</th>
-                    <th>Summa</th>
-                    <th>Välisumma</th>
-                    <th>Viite</th>
-                    <th>Viesti</th>
-                </tr>
-            </thead>
-            <tbody><!--javascript will add the rows here--></tbody>
-        </table>
+        <div id="ledger-tab" class="tab-content">
+            <table id="ledger">
+                <caption>Tilikirja</caption>
+                <thead>
+                    <tr>
+                        <th>Numero</th>
+                        <th>Päiväys</th>
+                        <th>Tili</th>
+                        <th>Nimike</th>
+                        <th>Credit/Debit</th>
+                        <th>Summa</th>
+                        <th>Välisumma</th>
+                        <th>Viite</th>
+                        <th>Viesti</th>
+                    </tr>
+                </thead>
+                <tbody><!--javascript will add the rows here--></tbody>
+            </table>
+        </div>
     </section>
 
 </body>

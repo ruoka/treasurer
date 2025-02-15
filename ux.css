@@ -1,58 +1,65 @@
-html {
-    font-family: "helvetica neue", helvetica, arial, sans-serif;
-}
-
 #note {
-    width: 600px;
+    min-width: 550px; /* Minimum width to start with */
 }
 
-table {
-    table-layout: fixed;
-    width: 100%;
-    border-collapse: collapse;
-}
-
-caption {
-    font-weight: bold;
-}
-
-caption, th, td {
-    text-align: left;
-}
-
-tbody tr:nth-child(odd) {
-    background-color: #33b1ff;
-}
-
-tbody tr:nth-child(even) {
-    background-color: #ffffff;
-}
-
-/* Column widths for specific tables */
-#balance th:nth-child(2), #balance td:nth-child(2),
-#income th:nth-child(2), #income td:nth-child(2) {
-    width: 65%;
-}
-
-#journal th:nth-child(1), #journal td:nth-child(1),
-#journal th:nth-child(3), #journal td:nth-child(3),
-#ledger th:nth-child(1), #ledger td:nth-child(1),
-#ledger th:nth-child(3), #ledger td:nth-child(3) {
-    width: 5%;
-}
-
-#journal th:nth-child(5), #journal td:nth-child(5),
-#ledger th:nth-child(5), #ledger td:nth-child(5) {
-    text-align: center;
+/* Enhance table headers */
+th {
+    background-color: #4CAF50; /* Green header for contrast */
+    color: white;
 }
 
 /* Responsive adjustments */
 @media screen and (max-width: 768px) {
     #note {
         width: 100%;
+        padding: 10px;
     }
     
     table, th, td {
-        font-size: smaller;
+        font-size: 14px; /* A bit larger for better readability on smaller screens */
     }
+}
+
+/* Tabs styling */
+.tabs {
+    display: flex;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 20px;
+    background: #fff;
+    padding: 10px;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.tab-link {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+    transition: all 0.3s ease;
+    border-radius: 5px 5px 0 0;
+}
+
+.tab-link:hover {
+    background-color: #e0e0e0;
+}
+
+.tab-link.active {
+    background-color: #4CAF50;
+    color: white;
+    border-bottom: none;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px;
+    background: #fff;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tab-content.active {
+    display: block;
 }
