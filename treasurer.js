@@ -51,7 +51,7 @@ window.onload = () => {
 
         const ledger = [];
         journal.forEach(transaction => ledger.push(...transaction.entries));
-        ledger.sort((lhs, rhs) => rhs.account.localeCompare(lhs.account) ? rhs.account.localeCompare(lhs.account) : lhs.date.localeCompare(rhs.date));
+        ledger.sort((lhs, rhs) => lhs.account.localeCompare(rhs.account) ? lhs.account.localeCompare(rhs.account) : (lhs.number < rhs.number));
 
         const balances = new Map();
         let assets = 0.00;
@@ -307,6 +307,7 @@ window.onload = () => {
         const file = await fileHandle.getFile();
         const content = await file.text();
         let results = parseCashAccountStatement(content);
+        results.reverse();
         results.forEach(result => journal.push(mapToJornal(result)))
         accout();
     };
