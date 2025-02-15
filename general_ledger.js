@@ -358,6 +358,16 @@ export let general_ledger = {
             "relation": null,
             "order": 19,
             "open": false
+        },
+        {
+            "account": "9999",
+            "member_id": 9999,
+            "code": "xxxx",
+            "code_prelabel_en": "Unbooke",
+            "code_prelabel_fi": "Kirjaamattomat",
+            "relation": null,
+            "order": 9999,
+            "open": false
         }
     ],
 };

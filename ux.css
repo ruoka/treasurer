@@ -3,7 +3,7 @@ html {
 }
 
 #note {
-    width: 500px;
+    width: 600px;
 }
 
 table {
@@ -28,22 +28,31 @@ tbody tr:nth-child(even) {
     background-color: #ffffff;
 }
 
-table {
-    width: 100%; /* Or a specific width if you prefer */
-    border-collapse: collapse; /* Optional, but often recommended */
-  }
-
-#balance th:nth-child(2), #balance td:nth-child(2), /* Target the second (middle) column cells */
+/* Column widths for specific tables */
+#balance th:nth-child(2), #balance td:nth-child(2),
 #income th:nth-child(2), #income td:nth-child(2) {
-    width: 65%; /* Adjust this percentage as needed */
+    width: 65%;
 }
 
-#journal th:nth-child(1), #journal td:nth-child(1), #journal th:nth-child(3), #journal td:nth-child(3),
-#ledger th:nth-child(1), #ledger td:nth-child(1), #ledger th:nth-child(3), #ledger td:nth-child(3) {
-    width: 5%; /* Adjust this percentage as needed */
+#journal th:nth-child(1), #journal td:nth-child(1),
+#journal th:nth-child(3), #journal td:nth-child(3),
+#ledger th:nth-child(1), #ledger td:nth-child(1),
+#ledger th:nth-child(3), #ledger td:nth-child(3) {
+    width: 5%;
 }
 
 #journal th:nth-child(5), #journal td:nth-child(5),
 #ledger th:nth-child(5), #ledger td:nth-child(5) {
     text-align: center;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    #note {
+        width: 100%;
+    }
+    
+    table, th, td {
+        font-size: smaller;
+    }
 }

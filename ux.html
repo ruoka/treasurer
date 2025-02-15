@@ -9,8 +9,11 @@
 
 <body>
 
-    <button id="open" type="button">Avaa</button>
-    <button id="save" type="button">Tallenna</button>
+    <div class="controls">
+        <button id="open" type="button">Avaa</button>
+        <button id="save" type="button">Tallenna</button>
+        <button id="statement" type="button">Nordean tiliote</button>
+    </div>
 
     <form id="transaction">
 
@@ -19,112 +22,120 @@
 
             <fieldset>
                 <legend>Otsikon</legend>
-                <input id="number" type="number" value=0 hidden>
-                <label for="reference">Viite</label><input id="reference" type="text" required>
-                <label for="created">Päivä</label><input id="created" type="date" required>
-                <label for="note">Selite</label><input id="note">
-                <br>
+                <input id="number" type="number" value="0" hidden>
+                <label for="reference">Viite</label>
+                <input id="reference" type="text" required>
+                <label for="created">Päivä</label>
+                <input id="created" type="date" required>
+                <label for="note">Selite</label>
+                <input id="note" aria-label="Selite">
             </fieldset>
 
             <fieldset id="entries">
                 <legend>Rivit</legend>
                 <button id="add" type="button">Lisää</button>
 
-                <div id="entry_set">
+                <div id="entry_set" class="entry">
                     <select id="entry">
                         <option value="credit">Credit</option>
                         <option value="debit" selected>Debit</option>
                     </select>
-                    <input id="date" type="date" required>
-                    <select id="account"><!--javascript will add the options here--></select>
-                    <input id="amount" type="number" min="0.01" step="0.01" required>&euro;
+                    <input id="date" type="date" required aria-label="Päiväys">
+                    <select id="account" aria-label="Tili">
+                        <!--javascript will add the options here-->
+                    </select>
+                    <input id="amount" type="number" min="0.01" step="0.01" required aria-label="Summa">€
                 </div>
 
-                <div id="contra_entry_set">
+                <div id="contra_entry_set" class="entry">
                     <select name="entry">
                         <option value="credit" selected>Credit</option>
                         <option value="debit">Debit</option>
                     </select>
-                    <input name="date" type="date" required>
-                    <select name="account" class="accounts"><!--javascript will add the options here--></select>
-                    <input name="amount" type="number" min="0.01" step="0.01" required>&euro;
+                    <input name="date" type="date" required aria-label="Päiväys">
+                    <select name="account" class="accounts" aria-label="Tili">
+                        <!--javascript will add the options here-->
+                    </select>
+                    <input name="amount" type="number" min="0.01" step="0.01" required aria-label="Summa">€
                 </div>
 
             </fieldset>
             <input id="submit" type="submit" value="Hyväksy">
             <input id="reset" type="reset" value="Nollaa">
             <label for="update">Päivitä</label>
-            <input id="update" type="checkbox">
+            <input id="update" type="checkbox" aria-label="Päivitä">
         </fieldset>
     </form>
 
     <br>
 
-    <table id="balance">
-        <caption>TASE</caption>
-        <thead>
-            <tr>
-                <th>Tili</th>
-                <th>Selite</th>
-                <th>Summa</th>
-            </tr>
-        </thead>
-        <tbody><!--javascript will add the rows here--></tbody>
-    </table>
+    <section class="tables">
+        <table id="balance">
+            <caption>TASE</caption>
+            <thead>
+                <tr>
+                    <th>Tili</th>
+                    <th>Selite</th>
+                    <th>Summa</th>
+                </tr>
+            </thead>
+            <tbody><!--javascript will add the rows here--></tbody>
+        </table>
 
-    <br>
+        <br>
 
-    <table id="income">
-        <caption>Tuloslaskelma</caption>
-        <thead>
-            <tr>
-                <th>Tili</th>
-                <th>Selite</th>
-                <th>Summa</th>
-            </tr>
-        </thead>
-        <tbody><!--javascript will add the rows here--></tbody>
-    </table>
- 
-    <br>
- 
-    <table id="journal">
-        <caption>Päiväkirja</caption>
-        <thead>
-            <tr>
-                <th>Numero</th>
-                <th>Päiväys</th>
-                <th>Tili</th>
-                <th>Nimike</th>
-                <th>Credit/Debit</th>
-                <th>Summa</th>
-                <th></th>
-                <th>Viite</th>
-                <th>Viesti</th>
-            </tr>
-        </thead>
-        <tbody><!--javascript will add the rows here--></tbody>
-    </table>
+        <table id="income">
+            <caption>Tuloslaskelma</caption>
+            <thead>
+                <tr>
+                    <th>Tili</th>
+                    <th>Selite</th>
+                    <th>Summa</th>
+                </tr>
+            </thead>
+            <tbody><!--javascript will add the rows here--></tbody>
+        </table>
 
-    <br>
+        <br>
 
-    <table id="ledger">
-        <caption>Tilikirja</caption>
-        <thead>
-            <tr>
-                <th>Numero</th>
-                <th>Päiväys</th>
-                <th>Tili</th>
-                <th>Nimike</th>
-                <th>Credit/Debit</th>
-                <th>Summa</th>
-                <th>Vlisumma</th>
-                <th>Viitw</th>
-                <th>Viesti</th>
-            </tr>
-        </thead>
-        <tbody><!--javascript will add the rows here--></tbody>
-    </table>
+        <table id="journal">
+            <caption>Päiväkirja</caption>
+            <thead>
+                <tr>
+                    <th>Numero</th>
+                    <th>Päiväys</th>
+                    <th>Tili</th>
+                    <th>Nimike</th>
+                    <th>Credit/Debit</th>
+                    <th>Summa</th>
+                    <th></th>
+                    <th>Viite</th>
+                    <th>Viesti</th>
+                </tr>
+            </thead>
+            <tbody><!--javascript will add the rows here--></tbody>
+        </table>
+
+        <br>
+
+        <table id="ledger">
+            <caption>Tilikirja</caption>
+            <thead>
+                <tr>
+                    <th>Numero</th>
+                    <th>Päiväys</th>
+                    <th>Tili</th>
+                    <th>Nimike</th>
+                    <th>Credit/Debit</th>
+                    <th>Summa</th>
+                    <th>Välisumma</th>
+                    <th>Viite</th>
+                    <th>Viesti</th>
+                </tr>
+            </thead>
+            <tbody><!--javascript will add the rows here--></tbody>
+        </table>
+    </section>
 
 </body>
 

@@ -1,6 +1,8 @@
-import {one,all} from "./query.js";
-import {general_ledger} from "./general_ledger.js";
-import {journal} from "./journal.js";
+import { one, all } from "./query.js";
+import { general_ledger } from "./general_ledger.js";
+import { journal } from "./journal.js";
+import { parseCashAccountStatement } from "./nordea.js";
+import { mapToJornal } from "./nordea.js";
 
 window.onload = () => {
 
@@ -47,15 +49,15 @@ window.onload = () => {
 
             const amount = ("credit".localeCompare(entry.entry) ? -1 : 1) * entry.amount;
 
-            if(entry.account.startsWith('1')) {
+            if (entry.account.startsWith('1')) {
                 assets += amount;
                 balances.set('1000', assets);
             } else {
                 liabilities += amount;
                 balances.set('2000', liabilities);
             }
- 
-            if(!(entry.account.startsWith('1') || entry.account.startsWith('2'))) {
+
+            if (!(entry.account.startsWith('1') || entry.account.startsWith('2'))) {
                 income += amount;
                 balances.set('2130', income);
             }
@@ -89,7 +91,7 @@ window.onload = () => {
 
             category.forEach(account => {
 
-                if(account.open) {
+                if (account.open) {
                     const option = document.createElement("option");
                     option.value = account.account;
                     option.textContent = account.account + ' - ' + account.code_prelabel_fi;
@@ -128,13 +130,13 @@ window.onload = () => {
         all("table#ledger tbody tr, table#journal tbody tr").forEach(row => row.onclick = () => {
             let number = row.querySelector(".number").textContent;
             alert(`${number}`);
-    
+
             const transaction = journal.find(t => t.header.number == number);
             one("#number").value = transaction.header.number;
             one("#created").value = transaction.header.created;
             one("#reference").value = transaction.header.reference;
             one("#note").value = transaction.header.note;
-    
+
             const divs = all("fieldset#entries div");
             let index = 0;
 
@@ -145,14 +147,14 @@ window.onload = () => {
                 div.children[3].value = transaction.entries[index].amount.toFixed(2);
                 ++index;
             };
-        
+
             while (index < transaction.entries.length) {
                 const div = one("#entries").appendChild(one("#contra_entry_set").cloneNode(true));
                 const button = div.appendChild(document.createElement("button"));
                 button.textContent = "Remove";
                 button.setAttribute("type", "button");
                 button.setAttribute("onclick", "this.parentElement.remove();");
-    
+
                 div.children[0].value = transaction.entries[index].entry;
                 div.children[1].value = transaction.entries[index].date;
                 div.children[2].value = transaction.entries[index].account;
@@ -269,8 +271,26 @@ window.onload = () => {
             }]
         });
         const writable = await handle.createWritable();
-        await writable.write(JSON.stringify(journal,null,2));
+        await writable.write(JSON.stringify(journal, null, 2));
         await writable.close();
+    };
+
+    one("#statement").onclick = async () => {
+        // Open file picker
+        const [fileHandle] = await window.showOpenFilePicker({
+            types: [{
+                description: 'Text Files',
+                accept: {
+                    'text/plain': ['.nda'],
+                },
+            }],
+        });
+
+        const file = await fileHandle.getFile();
+        const content = await file.text();
+        let results = parseCashAccountStatement(content);
+        results.forEach(result => journal.push(mapToJornal(result)))
+        accout();
     };
 
     accout();
