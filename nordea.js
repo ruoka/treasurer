@@ -1,4 +1,4 @@
-import { journal } from "./journal.js";
+import { journal } from "./treasurer.js";
 
 export const parseCashAccountStatement = (text) => {
     let lines = text.split('\n');
