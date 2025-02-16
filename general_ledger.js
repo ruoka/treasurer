@@ -267,8 +267,50 @@ export let general_ledger = {
             "code_prelabel_fi": "Tuotot, varainhankinta",
             "relation": null,
             "order": 4,
+            "open": false
+        },
+
+        {
+            "account": "4110",
+            "member_id": 12.1,
+            "code": "x4227-1",
+            "code_prelabel_en": null,
+            "code_prelabel_fi": "Jäsenmaksut",
+            "relation": null,
+            "order": 4.1,
             "open": true
         },
+        {
+            "account": "4120",
+            "member_id": 12.2,
+            "code": "x4227-2",
+            "code_prelabel_en": null,
+            "code_prelabel_fi": "Astemaksut",
+            "relation": null,
+            "order": 4.2,
+            "open": true
+        },
+        {
+            "account": "4130",
+            "member_id": 12.3,
+            "code": "x4227-3",
+            "code_prelabel_en": null,
+            "code_prelabel_fi": "Ropo-keräys",
+            "relation": null,
+            "order": 4.3,
+            "open": true
+        },
+        {
+            "account": "4140",
+            "member_id": 12.4,
+            "code": "x4227-4",
+            "code_prelabel_en": null,
+            "code_prelabel_fi": "Juhla-keräys",
+            "relation": null,
+            "order": 4.4,
+            "open": true
+        },
+
         {
             "account": "4200",
             "member_id": 13,

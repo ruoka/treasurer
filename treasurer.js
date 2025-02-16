@@ -1,8 +1,7 @@
 import { one, all } from "./query.js";
 import { general_ledger } from "./general_ledger.js";
-import { journal } from "./journal.js";
-import { parseCashAccountStatement } from "./nordea.js";
-import { mapToJornal } from "./nordea.js";
+import * as Treasurer from "./journal.js";
+import * as Nordea from "./nordea.js";
 
 window.onload = () => {
 
@@ -24,14 +23,16 @@ window.onload = () => {
     // Set default active tab if needed (optional, assuming you want 'balance-income' as default)
     document.querySelector('.tab-link[data-tab="balance-income"]').click();
 
-    const accout = () => {
+    const updateTables = () => {
+
+        Treasurer.account();
 
         one("#reset").click();
 
         const tbody1 = one("table#journal tbody");
         tbody1.innerHTML = "";
 
-        journal.forEach(transaction => transaction.entries.forEach(entry => {
+            Treasurer.journal.forEach(transaction => transaction.entries.forEach(entry => {
             entry.number = transaction.header.number;
             entry.reference = transaction.header.reference;
             entry.note = transaction.header.note;
@@ -49,44 +50,18 @@ window.onload = () => {
             tbody1.prepend(tr);
         }));
 
-        const ledger = [];
-        journal.forEach(transaction => ledger.push(...transaction.entries));
-        ledger.sort((lhs, rhs) => lhs.account.localeCompare(rhs.account) ? lhs.account.localeCompare(rhs.account) : (lhs.number < rhs.number));
-
-        const balances = new Map();
-        let assets = 0.00;
-        let liabilities = 0.00;
-        let income = 0.00;
         let account = "";
         let subtotal = 0.00;
-
         const tbody2 = one("table#ledger tbody");
         tbody2.innerHTML = "";
 
-        ledger.forEach(entry => {
-
-            const amount = ("credit".localeCompare(entry.entry) ? -1 : 1) * entry.amount;
-
-            if (entry.account.startsWith('1')) {
-                assets += amount;
-                balances.set('1000', assets);
-            } else {
-                liabilities += amount;
-                balances.set('2000', liabilities);
-            }
-
-            if (!(entry.account.startsWith('1') || entry.account.startsWith('2'))) {
-                income += amount;
-                balances.set('2130', income);
-            }
+        Treasurer.ledger.forEach(entry => {
 
             if (account.localeCompare(entry.account)) { // is same returns 0 == false
                 account = entry.account;
                 subtotal = 0.00;
             }
-
-            subtotal += amount;
-            balances.set(entry.account, subtotal);
+            subtotal += ("credit".localeCompare(entry.entry) ? -1 : 1) * entry.amount;
 
             const tr = document.createElement("tr");
             tr.appendChild(document.createElement("td")).textContent = entry.number;
@@ -120,8 +95,8 @@ window.onload = () => {
                 tr.appendChild(document.createElement("td")).textContent = account.account;
                 tr.appendChild(document.createElement("td")).textContent = account.code_prelabel_fi;
 
-                if (balances.has(account.account))
-                    tr.appendChild(document.createElement("td")).textContent = balances.get(account.account).toFixed(2);
+                if (Treasurer.balances.has(account.account))
+                    tr.appendChild(document.createElement("td")).textContent = Treasurer.balances.get(account.account).toFixed(2);
                 else
                     tr.appendChild(document.createElement("td")).textContent = new Number(0.00).toFixed(2);
 
@@ -149,7 +124,7 @@ window.onload = () => {
             let number = row.querySelector(".number").textContent;
             alert(`${number}`);
 
-            const transaction = journal.find(t => t.header.number == number);
+            const transaction = Treasurer.journal.find(t => t.header.number == number);
             one("#number").value = transaction.header.number;
             one("#created").value = transaction.header.created;
             one("#reference").value = transaction.header.reference;
@@ -214,7 +189,7 @@ window.onload = () => {
         };
 
         if (transaction.header.number == 0)
-            transaction.header.number = journal.map(t => t.header.number).reduce((n1, n2) => n1 > n2 ? n1 : n2, 0) + 1;
+            transaction.header.number = Treasurer.journal.map(t => t.header.number).reduce((n1, n2) => n1 > n2 ? n1 : n2, 0) + 1;
 
         let credits = 0.00;
         let debits = 0.00;
@@ -234,7 +209,7 @@ window.onload = () => {
 
         const update = one("#update").checked;
 
-        if (update == false && journal.some(existing => existing.header.number == transaction.header.number)) {
+        if (update == false && Treasurer.journal.some(existing => existing.header.number == transaction.header.number)) {
             alert(`Error: Transaction with number ${transaction.header.number} already exists`);
         }
         else if (credits.toFixed(2) !== debits.toFixed(2)) {
@@ -242,12 +217,13 @@ window.onload = () => {
         } else {
             alert(`Success: The ${divs.length} entries for transaction ${transaction.header.reference} are matching. Total credits/debits are ${credits} €`);
             if (update) {
-                const index = journal.findIndex(existing => existing.header.number == transaction.header.number);
-                journal[index] = transaction;
+                const index = Treasurer.journal.findIndex(existing => existing.header.number == transaction.header.number);
+                Treasurer.journal[index] = transaction;
+                one("#update").checked = false;
             } else {
-                journal.push(transaction);
+                Treasurer.journal.push(transaction);
             }
-            accout();
+            updateTables();
         }
     };
 
@@ -274,8 +250,8 @@ window.onload = () => {
         });
         const file = await fileHandle.getFile();
         const content = await file.text();
-        journal.push(...JSON.parse(content));
-        accout();
+        Treasurer.journal.push(...JSON.parse(content));
+        updateTables();
     };
 
     one("#save").onclick = async () => {
@@ -303,14 +279,13 @@ window.onload = () => {
                 },
             }],
         });
-
         const file = await fileHandle.getFile();
         const content = await file.text();
-        let results = parseCashAccountStatement(content);
+        let results = Nordea.parseCashAccountStatement(content);
         results.reverse();
-        results.forEach(result => journal.push(mapToJornal(result)))
-        accout();
+        results.forEach(result => Treasurer.journal.push(Nordea.mapToJornal(result)))
+        updateTables();
     };
 
-    accout();
+    updateTables();
 };
