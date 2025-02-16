@@ -44,15 +44,16 @@ export const parseCashAccountStatement = (text) => {
         if (line.startsWith('T1018800')) {
             currentResult = {
                 accountNumber: activeAccount,
-                bankReference: line.slice(12, 27),
+                bankReference: line.slice(12, 30),
                 entryDate: parseDate(line.slice(30, 36)),
                 paymentDate: parseDate(line.slice(36, 42)),
                 valueDate: parseDate(line.slice(42, 48)),
                 transaction: line.slice(48, 52).trim() + ' ' + line.slice(52, 87).trim().replace(/{/g, 'ä').replace(/\[/g, 'Ä').replace(/\\/g, 'Ö'),
-                amount: parseFloat(line.slice(87, 110)) / 100, // Assuming the value is stored with two implicit decimal places
+                amount: parseFloat(line.slice(87, 106)) / 100, // Assuming the value is stored with two implicit decimal places
                 name: line.slice(108, 143).trim().replace(/{/g, 'ä').replace(/\[/g, 'Ä').replace(/\\/g, 'Ö'),
                 reference: parseFloat(line.slice(160, 180)),
-                message: ''
+                message: null,
+                payerReference: null
             };
         } else if (line.startsWith('T1104300') && Object.keys(currentResult).length > 0) {
             currentResult.message = line.slice(8).trim().replace(/{/g, 'ä').replace(/\[/g, 'Ä').replace(/\\/g, 'Ö');
@@ -64,18 +65,26 @@ export const parseCashAccountStatement = (text) => {
         }
     }
 
+    results.sort((lhs, rhs) => {
+        // Assuming entryDate is either a Date object or a string in a sortable format like ISO 8601
+        const dateL = new Date(lhs.entryDate);
+        const dateR = new Date(rhs.entryDate);        
+        // Compare timestamps for Date objects
+        return dateL.getTime() - dateR.getTime();
+    });
+
     return results;
 }
 
 export const mapToJornal = (old) => {
     const number = journal.length + 1; // New integer from jornal
-    const date = old.valueDate.split('T')[0]; // Extract date from ISO string
+    const date = old.entryDate.split('T')[0]; // Extract date from ISO string
     const newDescription = `${old.transaction}, ${old.name}, ${old.message}, ${old.reference}`;
 
     return {
         "header": {
             "number": number,
-            "created": date,
+            "created": new Date().toISOString().split('T')[0],
             "reference": old.bankReference,
             "note": newDescription
         },

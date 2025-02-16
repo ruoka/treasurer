@@ -125,6 +125,22 @@
         </div>
 
         <div id="ledger-tab" class="tab-content">
+
+            <div id="ledger-filters">
+                <label for="fromDate">Alkaen:</label>
+                <input type="date" id="fromDate">
+                <label for="toDate">Asti:</label>
+                <input type="date" id="toDate">
+                <label for="filterAccount">Tili:</label>
+                <select id="filterAccount">
+                    <option value="">Kaikki</option>
+                    <!-- JavaScript will populate these options -->
+                </select>
+                <label for="messageFilter">Viesti:</label>
+                <input type="text" id="messageFilter" placeholder="Hae viestillä...">
+                <button id="applyFilter">Suodata</button>
+            </div>
+
             <table id="ledger">
                 <caption>Tilikirja</caption>
                 <thead>

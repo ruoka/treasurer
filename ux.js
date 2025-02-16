@@ -4,9 +4,8 @@ import * as Nordea from "./nordea.js";
 
 window.onload = () => {
 
-    const tabs = document.querySelectorAll('.tab-link');
-    const tabContents = document.querySelectorAll('.tab-content');
-
+    const tabs = all('.tab-link');
+    const tabContents = all('.tab-content');
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
             // Remove active class from all tabs and tab contents
@@ -16,11 +15,63 @@ window.onload = () => {
             // Add active class to clicked tab and corresponding content
             tab.classList.add('active');
             document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
+
+            // Check if the ledger tab is activated
+            if (tab.dataset.tab === 'ledger') {
+                applyLedgerFilters();
+            }
         });
     });
 
     // Set default active tab if needed (optional, assuming you want 'balance-income' as default)
-    document.querySelector('.tab-link[data-tab="balance-income"]').click();
+    one('.tab-link[data-tab="balance-income"]').click();
+    const ledgerTableBody = one('#ledger tbody');
+    const fromDate = document.getElementById('fromDate');
+    const toDate = document.getElementById('toDate');
+    const filterAccount = document.getElementById('filterAccount');
+    const applyFilterBtn = document.getElementById('applyFilter');
+    const messageFilter = one('#messageFilter');
+
+    // Populate accounts in the filter dropdown (you'll need to get this data from somewhere)
+    // Here's a mockup:
+    const accounts = ["9999"]; // Example accounts
+    accounts.forEach(account => {
+        const option = document.createElement('option');
+        option.value = account;
+        option.textContent = account;
+        filterAccount.appendChild(option);
+    });
+
+    // Apply filters when the apply button is clicked
+    applyFilterBtn.addEventListener('click', applyLedgerFilters);
+
+    // Apply message filter on input
+    messageFilter.addEventListener('input', applyLedgerFilters);
+
+    function applyLedgerFilters() {
+        const from = fromDate.value ? new Date(fromDate.value) : null;
+        const to = toDate.value ? new Date(toDate.value) : null;
+        const account = filterAccount.value || null;
+        const message = messageFilter.value.toLowerCase();
+
+        const rows = Array.from(ledgerTableBody.querySelectorAll('tr'));
+
+        rows.forEach(row => {
+            const rowDate = new Date(row.querySelector('td:nth-child(2)').textContent); // Assuming date is in the second column
+            const rowAccount = row.querySelector('td:nth-child(3)').textContent; // Assuming account is in the third column
+            const messageCell = row.querySelector('td:nth-child(9)'); // Assuming 'Viesti' is the 9th child
+
+            const dateMatch = (!from || rowDate >= from) && (!to || rowDate <= to);
+            const accountMatch = !account || rowAccount.includes(account);
+            const messageMatch = !message || (messageCell && messageCell.textContent.toLowerCase().includes(message));
+
+            if (dateMatch && accountMatch && messageMatch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
 
     const updateTables = () => {
 
@@ -281,7 +332,6 @@ window.onload = () => {
         const file = await fileHandle.getFile();
         const content = await file.text();
         let results = Nordea.parseCashAccountStatement(content);
-        results.reverse();
         results.forEach(result => Treasurer.journal.push(Nordea.mapToJornal(result)))
         updateTables();
     };

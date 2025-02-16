@@ -259,6 +259,18 @@ export let general_ledger = {
             "order": 2,
             "open": true
         },
+
+        {
+            "account": "3210",
+            "member_id": 8.1,
+            "code": "x4222-1",
+            "code_prelabel_en": null,
+            "code_prelabel_fi": "Lahjoitukset",
+            "relation": null,
+            "order": 2.1,
+            "open": true
+        },
+
         {
             "account": "4100",
             "member_id": 12,
