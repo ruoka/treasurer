@@ -34,7 +34,7 @@ window.onload = () => {
 
     // Populate accounts in the filter dropdown (you'll need to get this data from somewhere)
     // Here's a mockup:
-    const accounts = ["9999"]; // Example accounts
+    const accounts = ["9999","1240","3100","4110","4120","4130"]; // Example accounts
     accounts.forEach(account => {
         const option = document.createElement('option');
         option.value = account;
@@ -206,6 +206,8 @@ window.onload = () => {
             }
             one("#created").focus();
         });
+
+        applyLedgerFilters();
     };
 
     one("#created").onchange = () => all("#date, [name=date]").forEach(element => element.value = one("#created").value);
@@ -238,8 +240,10 @@ window.onload = () => {
             entries: []
         };
 
-        if (transaction.header.number == 0)
-            transaction.header.number = Treasurer.journal.map(t => t.header.number).reduce((n1, n2) => n1 > n2 ? n1 : n2, 0) + 1;
+        if (transaction.header.number == 0) {
+            const currentMax = Treasurer.journal.map(t => parseInt(t.header.number, 10) || 0).reduce((n1, n2) => Math.max(n1, n2), 0);
+            transaction.header.number = currentMax + 1;
+        }
 
         let credits = 0.00;
         let debits = 0.00;
@@ -287,6 +291,8 @@ window.onload = () => {
         one("#number").value = 0;
         one("#created").value = new Date().toISOString().split("T")[0];
         all("#date, [name=date]").forEach(element => element.value = one("#created").value);
+
+        updateTables();
     };
 
     one("#open").onclick = async () => {
