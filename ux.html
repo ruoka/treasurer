@@ -9,157 +9,166 @@
 
 <body>
 
-    <div class="controls">
-        <button id="open" type="button">Avaa</button>
-        <button id="save" type="button">Tallenna</button>
-        <button id="statement" type="button">Lataa Nordean tiliote</button>
-    </div>
+    <main class="page">
 
-    <form id="transaction">
+        <div class="controls">
+            <button id="open" type="button">Avaa</button>
+            <button id="save" type="button">Tallenna</button>
+            <button id="statement" type="button">Lataa Nordean tiliote</button>
+        </div>
 
-        <fieldset>
-            <legend>Tapahtuman</legend>
+        <form id="transaction">
 
             <fieldset>
-                <legend>Otsikon</legend>
-                <input id="number" type="number" value="0" hidden>
-                <label for="reference">Viite</label>
-                <input id="reference" type="text" required>
-                <label for="created">Päivä</label>
-                <input id="created" type="date" required>
-                <label for="note">Selite</label>
-                <textarea id="note" aria-label="Selite" rows="1"></textarea>
+                <legend>Tapahtuman</legend>
+
+                <fieldset>
+                    <legend>Otsikon</legend>
+                    <input id="number" type="number" value="0" hidden>
+                    <label for="reference">Viite</label>
+                    <input id="reference" type="text" required>
+                    <label for="created">Päivä</label>
+                    <input id="created" type="date" required>
+                    <label for="note">Selite</label>
+                    <textarea id="note" aria-label="Selite" rows="1"></textarea>
+                </fieldset>
+
+                <fieldset id="entries">
+                    <legend>Rivit</legend>
+                    <button id="add" type="button">Lisää</button>
+
+                    <div id="entry_set" class="entry">
+                        <select id="entry">
+                            <option value="credit">Credit</option>
+                            <option value="debit" selected>Debit</option>
+                        </select>
+                        <input id="date" type="date" required aria-label="Päiväys">
+                        <select id="account" aria-label="Tili">
+                            <!--javascript will add the options here-->
+                        </select>
+                        <input id="amount" type="number" min="0.01" step="0.01" required aria-label="Summa">€
+                    </div>
+
+                    <div id="contra_entry_set" class="entry">
+                        <select name="entry">
+                            <option value="credit" selected>Credit</option>
+                            <option value="debit">Debit</option>
+                        </select>
+                        <input name="date" type="date" required aria-label="Päiväys">
+                        <select name="account" class="accounts" aria-label="Tili">
+                            <!--javascript will add the options here-->
+                        </select>
+                        <input name="amount" type="number" min="0.01" step="0.01" required aria-label="Summa">€
+                    </div>
+
+                </fieldset>
+                <input id="submit" type="submit" value="Päivitä">
+                <input id="reset" type="reset" value="Nollaa">
+                <label for="update">Korvaa</label>
+                <input id="update" type="checkbox" aria-label="Korvaa">
             </fieldset>
+        </form>
 
-            <fieldset id="entries">
-                <legend>Rivit</legend>
-                <button id="add" type="button">Lisää</button>
-
-                <div id="entry_set" class="entry">
-                    <select id="entry">
-                        <option value="credit">Credit</option>
-                        <option value="debit" selected>Debit</option>
-                    </select>
-                    <input id="date" type="date" required aria-label="Päiväys">
-                    <select id="account" aria-label="Tili">
-                        <!--javascript will add the options here-->
-                    </select>
-                    <input id="amount" type="number" min="0.01" step="0.01" required aria-label="Summa">€
-                </div>
-
-                <div id="contra_entry_set" class="entry">
-                    <select name="entry">
-                        <option value="credit" selected>Credit</option>
-                        <option value="debit">Debit</option>
-                    </select>
-                    <input name="date" type="date" required aria-label="Päiväys">
-                    <select name="account" class="accounts" aria-label="Tili">
-                        <!--javascript will add the options here-->
-                    </select>
-                    <input name="amount" type="number" min="0.01" step="0.01" required aria-label="Summa">€
-                </div>
-
-            </fieldset>
-            <input id="submit" type="submit" value="Päivitä">
-            <input id="reset" type="reset" value="Nollaa">
-            <label for="update">Korvaa</label>
-            <input id="update" type="checkbox" aria-label="Korvaa">
-        </fieldset>
-    </form>
-
-    <br>
-
-    <section class="tables">
-        <div class="tabs">
-            <button class="tab-link active" data-tab="balance-income">TASE & Tuloslaskelma</button>
-            <button class="tab-link" data-tab="journal">Päiväkirja</button>
-            <button class="tab-link" data-tab="ledger">Pääkirja</button>
-        </div>
-
-        <div id="balance-income-tab" class="tab-content active">
-            <table id="balance">
-                <caption>TASE</caption>
-                <thead>
-                    <tr>
-                        <th>Tili</th>
-                        <th>Selite</th>
-                        <th>Summa</th>
-                    </tr>
-                </thead>
-                <tbody><!--javascript will add the rows here--></tbody>
-            </table>
-
-            <br>
-
-            <table id="income">
-                <caption>Tuloslaskelma</caption>
-                <thead>
-                    <tr>
-                        <th>Tili</th>
-                        <th>Selite</th>
-                        <th>Summa</th>
-                    </tr>
-                </thead>
-                <tbody><!--javascript will add the rows here--></tbody>
-            </table>
-        </div>
-
-        <div id="journal-tab" class="tab-content">
-            <table id="journal">
-                <caption>Päiväkirja</caption>
-                <thead>
-                    <tr>
-                        <th>Numero</th>
-                        <th>Päiväys</th>
-                        <th>Tili</th>
-                        <th>Nimike</th>
-                        <th>Credit/Debit</th>
-                        <th>Summa</th>
-                        <th></th>
-                        <th>Viite</th>
-                        <th>Viesti</th>
-                    </tr>
-                </thead>
-                <tbody><!--javascript will add the rows here--></tbody>
-            </table>
-        </div>
-
-        <div id="ledger-tab" class="tab-content">
-
-            <div id="ledger-filters">
-                <label for="fromDate">Alkaen:</label>
-                <input type="date" id="fromDate">
-                <label for="toDate">Asti:</label>
-                <input type="date" id="toDate">
-                <label for="filterAccount">Tili:</label>
-                <select id="filterAccount">
-                    <option value="">Kaikki</option>
-                    <!-- JavaScript will populate these options -->
-                </select>
-                <label for="messageFilter">Viesti:</label>
-                <input type="text" id="messageFilter" placeholder="Hae viestillä...">
-                <button id="applyFilter">Suodata</button>
+        <section class="tables">
+            <div class="tabs">
+                <button class="tab-link active" data-tab="balance-income">TASE & Tuloslaskelma</button>
+                <button class="tab-link" data-tab="journal">Päiväkirja</button>
+                <button class="tab-link" data-tab="ledger">Pääkirja</button>
             </div>
 
-            <table id="ledger">
-                <caption>Tilikirja</caption>
-                <thead>
-                    <tr>
-                        <th>Numero</th>
-                        <th>Päiväys</th>
-                        <th>Tili</th>
-                        <th>Nimike</th>
-                        <th>Credit/Debit</th>
-                        <th>Summa</th>
-                        <th>Välisumma</th>
-                        <th>Viite</th>
-                        <th>Viesti</th>
-                    </tr>
-                </thead>
-                <tbody><!--javascript will add the rows here--></tbody>
-            </table>
-        </div>
-    </section>
+            <div id="balance-income-tab" class="tab-content active">
+                <div class="table-grid">
+                    <div class="table-card">
+                        <table id="balance">
+                            <caption>TASE</caption>
+                            <thead>
+                                <tr>
+                                    <th>Tili</th>
+                                    <th>Selite</th>
+                                    <th>Summa</th>
+                                </tr>
+                            </thead>
+                            <tbody><!--javascript will add the rows here--></tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-card">
+                        <table id="income">
+                            <caption>Tuloslaskelma</caption>
+                            <thead>
+                                <tr>
+                                    <th>Tili</th>
+                                    <th>Selite</th>
+                                    <th>Summa</th>
+                                </tr>
+                            </thead>
+                            <tbody><!--javascript will add the rows here--></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="journal-tab" class="tab-content">
+                <div class="table-card">
+                    <table id="journal">
+                        <caption>Päiväkirja</caption>
+                        <thead>
+                            <tr>
+                                <th>Numero</th>
+                                <th>Päiväys</th>
+                                <th>Tili</th>
+                                <th>Nimike</th>
+                                <th>Credit/Debit</th>
+                                <th>Summa</th>
+                                <th></th>
+                                <th>Viite</th>
+                                <th>Viesti</th>
+                            </tr>
+                        </thead>
+                        <tbody><!--javascript will add the rows here--></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="ledger-tab" class="tab-content">
+                <div class="table-card">
+                    <div id="ledger-filters">
+                        <label for="fromDate">Alkaen:</label>
+                        <input type="date" id="fromDate">
+                        <label for="toDate">Asti:</label>
+                        <input type="date" id="toDate">
+                        <label for="filterAccount">Tili:</label>
+                        <select id="filterAccount">
+                            <option value="">Kaikki</option>
+                            <!-- JavaScript will populate these options -->
+                        </select>
+                        <label for="messageFilter">Viesti:</label>
+                        <input type="text" id="messageFilter" placeholder="Hae viestillä...">
+                        <button id="applyFilter">Suodata</button>
+                    </div>
+
+                    <table id="ledger">
+                        <caption>Tilikirja</caption>
+                        <thead>
+                            <tr>
+                                <th>Numero</th>
+                                <th>Päiväys</th>
+                                <th>Tili</th>
+                                <th>Nimike</th>
+                                <th>Credit/Debit</th>
+                                <th>Summa</th>
+                                <th>Välisumma</th>
+                                <th>Viite</th>
+                                <th>Viesti</th>
+                            </tr>
+                        </thead>
+                        <tbody><!--javascript will add the rows here--></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
 
 </body>
 
