@@ -34,7 +34,7 @@ window.onload = () => {
 
     // Populate accounts in the filter dropdown (you'll need to get this data from somewhere)
     // Here's a mockup:
-    const accounts = ["9999","1240","3100","4110","4120","4130"]; // Example accounts
+    const accounts = ["9999","1240","3100","3210","4110","4120","4130"]; // Example accounts
     accounts.forEach(account => {
         const option = document.createElement('option');
         option.value = account;
@@ -93,7 +93,7 @@ window.onload = () => {
             tr.appendChild(document.createElement("td")).textContent = entry.account;
             tr.appendChild(document.createElement("td")).textContent = entry.label;
             tr.appendChild(document.createElement("td")).textContent = entry.entry;
-            tr.appendChild(document.createElement("td")).textContent = entry.amount.toFixed(2);
+            tr.appendChild(document.createElement("td")).textContent = entry.amount.toFixed(2).replace('.',',');;
             tr.appendChild(document.createElement("td")); // intentionally empty
             tr.appendChild(document.createElement("td")).textContent = entry.reference;
             tr.appendChild(document.createElement("td")).textContent = entry.note;
@@ -120,8 +120,8 @@ window.onload = () => {
             tr.appendChild(document.createElement("td")).textContent = entry.account;
             tr.appendChild(document.createElement("td")).textContent = entry.label;
             tr.appendChild(document.createElement("td")).textContent = entry.entry;
-            tr.appendChild(document.createElement("td")).textContent = entry.amount.toFixed(2);
-            tr.appendChild(document.createElement("td")).textContent = subtotal.toFixed(2);
+            tr.appendChild(document.createElement("td")).textContent = entry.amount.toFixed(2).replace('.',',');
+            tr.appendChild(document.createElement("td")).textContent = subtotal.toFixed(2).replace('.',',');
             tr.appendChild(document.createElement("td")).textContent = entry.reference;
             tr.appendChild(document.createElement("td")).textContent = entry.note;
             tbody2.append(tr);
@@ -146,9 +146,9 @@ window.onload = () => {
                 tr.appendChild(document.createElement("td")).textContent = account.code_prelabel_fi;
 
                 if (Treasurer.balances.has(account.account))
-                    tr.appendChild(document.createElement("td")).textContent = Treasurer.balances.get(account.account).toFixed(2);
+                    tr.appendChild(document.createElement("td")).textContent = Treasurer.balances.get(account.account).toFixed(2).replace('.',',');
                 else
-                    tr.appendChild(document.createElement("td")).textContent = new Number(0.00).toFixed(2);
+                    tr.appendChild(document.createElement("td")).textContent = new Number(0.00).toFixed(2).replace('.',',');
 
                 tbody.append(tr);
             });
@@ -187,12 +187,13 @@ window.onload = () => {
                 div.children[0].value = transaction.entries[index].entry;
                 div.children[1].value = transaction.entries[index].date;
                 div.children[2].value = transaction.entries[index].account;
-                div.children[3].value = transaction.entries[index].amount.toFixed(2);
+                div.children[3].value = transaction.entries[index].amount.toFixed(2).replace('.',',');
                 ++index;
             };
 
             while (index < transaction.entries.length) {
                 const div = one("#entries").appendChild(one("#contra_entry_set").cloneNode(true));
+                div.removeAttribute("id");
                 const button = div.appendChild(document.createElement("button"));
                 button.textContent = "Remove";
                 button.setAttribute("type", "button");
@@ -201,7 +202,7 @@ window.onload = () => {
                 div.children[0].value = transaction.entries[index].entry;
                 div.children[1].value = transaction.entries[index].date;
                 div.children[2].value = transaction.entries[index].account;
-                div.children[3].value = transaction.entries[index].amount.toFixed(2);;
+                div.children[3].value = transaction.entries[index].amount.toFixed(2).replace('.',',');
                 ++index;
             }
             one("#created").focus();
@@ -214,6 +215,7 @@ window.onload = () => {
 
     one("#add").onclick = () => {
         const div = one("#entries").appendChild(one("#contra_entry_set").cloneNode(true));
+        div.removeAttribute("id");
         const button = div.appendChild(document.createElement("button"));
         button.textContent = "Poista"; // FIXME
         button.setAttribute("type", "button");
