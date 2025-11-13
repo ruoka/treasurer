@@ -1,10 +1,21 @@
 #note {
-    min-width: 550px; /* Minimum width to start with */
+    width: 100%;
+    max-width: 600px;
+    min-height: 3rem;
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
 }
 
 /* Enhance table headers */
 th {
-    background-color: #4CAF50; /* Green header for contrast */
+    background-color: #2f7a3d; /* Darker green for contrast */
     color: white;
 }
 
@@ -46,8 +57,13 @@ th {
     background-color: #e0e0e0;
 }
 
+.tab-link:focus-visible {
+    outline: 2px solid #1d4e29;
+    outline-offset: 2px;
+}
+
 .tab-link.active {
-    background-color: #4CAF50;
+    background-color: #2f7a3d;
     color: white;
     border-bottom: none;
 }
@@ -58,6 +74,7 @@ th {
     background: #fff;
     border-radius: 0 0 8px 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-x: auto;
 }
 
 .tab-content.active {
