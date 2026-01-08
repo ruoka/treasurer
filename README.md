@@ -25,7 +25,19 @@ The application follows Finnish accounting standards and uses the official Finni
 
 ## Running the Application
 
-To open the application in Google Chrome with file access:
+### Quick Start
+
+The easiest way to start the application is using the provided script:
+
+```bash
+./start.sh
+```
+
+This script automatically opens Google Chrome with the required file access permissions and loads `ux.html`.
+
+### Manual Start
+
+Alternatively, you can manually open the application:
 
 ```bash
 open -a Google\ Chrome --args  --allow-file-access-from-files
