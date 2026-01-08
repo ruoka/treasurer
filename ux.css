@@ -74,6 +74,25 @@ table {
 }
 
 /* Column width adjustments for better readability */
+/* Numero column (1st column) - can be shorter */
+#journal th:nth-child(1),
+#journal td:nth-child(1),
+#ledger th:nth-child(1),
+#ledger td:nth-child(1) {
+    width: 5%;
+    min-width: 60px;
+}
+
+/* Päiväys column (2nd column) - needs more space */
+#journal th:nth-child(2),
+#journal td:nth-child(2),
+#ledger th:nth-child(2),
+#ledger td:nth-child(2) {
+    width: 10%;
+    min-width: 120px;
+}
+
+/* VIITE column (8th column) */
 #journal th:nth-child(8),
 #journal td:nth-child(8),
 #ledger th:nth-child(8),
