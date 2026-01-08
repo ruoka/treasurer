@@ -112,7 +112,9 @@ window.onload = () => {
             tr.appendChild(document.createElement("td")).textContent = entry.account;
             tr.appendChild(document.createElement("td")).textContent = entry.label;
             tr.appendChild(document.createElement("td")).textContent = entry.entry;
-            tr.appendChild(document.createElement("td")).textContent = entry.amount.toFixed(2).replace('.',',');;
+            // Ensure amount is a number
+            const amount = typeof entry.amount === 'number' ? entry.amount : parseFloat(entry.amount) || 0;
+            tr.appendChild(document.createElement("td")).textContent = amount.toFixed(2).replace('.',',');
             tr.appendChild(document.createElement("td")); // intentionally empty
             tr.appendChild(document.createElement("td")).textContent = entry.reference;
             tr.appendChild(document.createElement("td")).textContent = entry.note;
@@ -130,7 +132,9 @@ window.onload = () => {
                 account = entry.account;
                 subtotal = 0.00;
             }
-            subtotal += ("credit".localeCompare(entry.entry) ? -1 : 1) * entry.amount;
+            // Ensure amount is a number
+            const amount = typeof entry.amount === 'number' ? entry.amount : parseFloat(entry.amount) || 0;
+            subtotal += ("credit".localeCompare(entry.entry) ? -1 : 1) * amount;
 
             const tr = document.createElement("tr");
             tr.appendChild(document.createElement("td")).textContent = entry.number;
@@ -139,7 +143,7 @@ window.onload = () => {
             tr.appendChild(document.createElement("td")).textContent = entry.account;
             tr.appendChild(document.createElement("td")).textContent = entry.label;
             tr.appendChild(document.createElement("td")).textContent = entry.entry;
-            tr.appendChild(document.createElement("td")).textContent = entry.amount.toFixed(2).replace('.',',');
+            tr.appendChild(document.createElement("td")).textContent = amount.toFixed(2).replace('.',',');
             tr.appendChild(document.createElement("td")).textContent = subtotal.toFixed(2).replace('.',',');
             tr.appendChild(document.createElement("td")).textContent = entry.reference;
             tr.appendChild(document.createElement("td")).textContent = entry.note;
@@ -202,10 +206,12 @@ window.onload = () => {
             let index = 0;
 
             for (let div of divs) {
-                div.children[0].value = transaction.entries[index].entry;
-                div.children[1].value = transaction.entries[index].date;
-                div.children[2].value = transaction.entries[index].account;
-                div.children[3].value = transaction.entries[index].amount.toFixed(2).replace('.',',');
+                const entry = transaction.entries[index];
+                const amount = typeof entry.amount === 'number' ? entry.amount : parseFloat(entry.amount) || 0;
+                div.children[0].value = entry.entry;
+                div.children[1].value = entry.date;
+                div.children[2].value = entry.account;
+                div.children[3].value = amount.toFixed(2).replace('.',',');
                 ++index;
             };
 
@@ -217,10 +223,12 @@ window.onload = () => {
                 button.setAttribute("type", "button");
                 button.setAttribute("onclick", "this.parentElement.remove();");
 
-                div.children[0].value = transaction.entries[index].entry;
-                div.children[1].value = transaction.entries[index].date;
-                div.children[2].value = transaction.entries[index].account;
-                div.children[3].value = transaction.entries[index].amount.toFixed(2).replace('.',',');
+                const entry = transaction.entries[index];
+                const amount = typeof entry.amount === 'number' ? entry.amount : parseFloat(entry.amount) || 0;
+                div.children[0].value = entry.entry;
+                div.children[1].value = entry.date;
+                div.children[2].value = entry.account;
+                div.children[3].value = amount.toFixed(2).replace('.',',');
                 ++index;
             }
             one("#created").focus();
@@ -367,7 +375,16 @@ window.onload = () => {
                 throw new Error('Invalid file format: expected an array of transactions');
             }
             
-            Treasurer.journal.push(...parsedData);
+            // Normalize amounts to numbers (handle both string and number formats)
+            const normalizedData = parsedData.map(transaction => ({
+                ...transaction,
+                entries: transaction.entries.map(entry => ({
+                    ...entry,
+                    amount: typeof entry.amount === 'string' ? parseFloat(entry.amount) : entry.amount
+                }))
+            }));
+            
+            Treasurer.journal.push(...normalizedData);
             updateTables();
         } catch (error) {
             if (error.name === 'AbortError') {
