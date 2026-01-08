@@ -32,15 +32,34 @@ window.onload = () => {
     const applyFilterBtn = document.getElementById('applyFilter');
     const messageFilter = one('#messageFilter');
 
-    // Populate accounts in the filter dropdown (you'll need to get this data from somewhere)
-    // Here's a mockup:
-    const accounts = ["9999","1240","3100","3210","4110","4120","4130"]; // Example accounts
-    accounts.forEach(account => {
-        const option = document.createElement('option');
-        option.value = account;
-        option.textContent = account;
-        filterAccount.appendChild(option);
-    });
+    // Populate accounts in the filter dropdown from general ledger
+    const populateAccountFilter = () => {
+        filterAccount.innerHTML = '<option value="">Kaikki</option>';
+        const accountSet = new Set();
+        
+        // Collect all open accounts from balance sheet and income statement
+        Treasurer.general_ledger.balance_sheet.forEach(account => {
+            if (account.open) accountSet.add(account.account);
+        });
+        Treasurer.general_ledger.income_statement.forEach(account => {
+            if (account.open) accountSet.add(account.account);
+        });
+        
+        // Add accounts from existing journal entries (for accounts that might not be in general_ledger)
+        Treasurer.journal.forEach(transaction => {
+            transaction.entries.forEach(entry => {
+                if (entry.account) accountSet.add(entry.account);
+            });
+        });
+        
+        // Sort and add to dropdown
+        Array.from(accountSet).sort().forEach(account => {
+            const option = document.createElement('option');
+            option.value = account;
+            option.textContent = account;
+            filterAccount.appendChild(option);
+        });
+    };
 
     // Apply filters when the apply button is clicked
     applyFilterBtn.addEventListener('click', applyLedgerFilters);
@@ -172,7 +191,6 @@ window.onload = () => {
 
         all("table#ledger tbody tr, table#journal tbody tr").forEach(row => row.onclick = () => {
             let number = row.querySelector(".number").textContent;
-            alert(`${number}`);
 
             const transaction = Treasurer.journal.find(t => t.header.number == number);
             one("#number").value = transaction.header.number;
@@ -209,6 +227,7 @@ window.onload = () => {
         });
 
         applyLedgerFilters();
+        populateAccountFilter(); // Update account filter when tables are updated
     };
 
     one("#created").onchange = () => all("#date, [name=date]").forEach(element => element.value = one("#created").value);
@@ -217,7 +236,7 @@ window.onload = () => {
         const div = one("#entries").appendChild(one("#contra_entry_set").cloneNode(true));
         div.removeAttribute("id");
         const button = div.appendChild(document.createElement("button"));
-        button.textContent = "Poista"; // FIXME
+        button.textContent = "Poista"; // Remove button (Finnish)
         button.setAttribute("type", "button");
         button.setAttribute("onclick", "this.parentElement.remove();");
     };
@@ -250,13 +269,45 @@ window.onload = () => {
         let credits = 0.00;
         let debits = 0.00;
         const divs = all("fieldset#entries div");
+        
+        // Validate that we have at least 2 entries (double-entry bookkeeping requirement)
+        if (divs.length < 2) {
+            alert('Error: At least 2 entries are required for double-entry bookkeeping');
+            return;
+        }
+        
         for (let div of divs) {
+            const entryType = div.children[0].value;
+            const date = div.children[1].value;
+            const account = div.children[2].value;
+            const amountStr = div.children[3].value;
+            
+            // Validate required fields
+            if (!date) {
+                alert('Error: All entries must have a date');
+                return;
+            }
+            if (!account) {
+                alert('Error: All entries must have an account selected');
+                return;
+            }
+            if (!amountStr || parseFloat(amountStr) <= 0) {
+                alert('Error: All entries must have a positive amount');
+                return;
+            }
+            
+            const amount = parseFloat(amountStr);
+            if (isNaN(amount) || amount <= 0) {
+                alert(`Error: Invalid amount: ${amountStr}`);
+                return;
+            }
+            
             const entry = {
-                entry: div.children[0].value,
-                date: div.children[1].value,
-                account: div.children[2].value,
+                entry: entryType,
+                date: date,
+                account: account,
                 label: div.children[2].options[div.children[2].selectedIndex].text.substring(7),
-                amount: parseFloat(div.children[3].value)
+                amount: amount
             };
             credits += entry.entry.localeCompare("credit") ? 0 : entry.amount;
             debits += entry.entry.localeCompare("debit") ? 0 : entry.amount;
@@ -298,51 +349,96 @@ window.onload = () => {
     };
 
     one("#open").onclick = async () => {
-        const [fileHandle] = await window.showOpenFilePicker({
-            types: [{
-                description: 'JSON Files',
-                accept: {
-                    'application/json': ['.json'],
-                },
-            }],
-        });
-        const file = await fileHandle.getFile();
-        const content = await file.text();
-        Treasurer.journal.push(...JSON.parse(content));
-        updateTables();
+        try {
+            const [fileHandle] = await window.showOpenFilePicker({
+                types: [{
+                    description: 'JSON Files',
+                    accept: {
+                        'application/json': ['.json'],
+                    },
+                }],
+            });
+            const file = await fileHandle.getFile();
+            const content = await file.text();
+            const parsedData = JSON.parse(content);
+            
+            // Validate that it's an array
+            if (!Array.isArray(parsedData)) {
+                throw new Error('Invalid file format: expected an array of transactions');
+            }
+            
+            Treasurer.journal.push(...parsedData);
+            updateTables();
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                // User cancelled file picker - silently ignore
+                return;
+            }
+            alert(`Error loading file: ${error.message}`);
+            console.error('Error loading journal file:', error);
+        }
     };
 
     one("#save").onclick = async () => {
-        const handle = await window.showSaveFilePicker({
-            suggestedName: 'example.json',
-            types: [{
-                description: 'JSON Files',
-                accept: {
-                    'application/json': ['.json'],
-                }
-            }]
-        });
-        const writable = await handle.createWritable();
-        await writable.write(JSON.stringify(Treasurer.journal, null, 2));
-        await writable.close();
+        try {
+            const handle = await window.showSaveFilePicker({
+                suggestedName: 'journal.json',
+                types: [{
+                    description: 'JSON Files',
+                    accept: {
+                        'application/json': ['.json'],
+                    }
+                }]
+            });
+            const writable = await handle.createWritable();
+            await writable.write(JSON.stringify(Treasurer.journal, null, 2));
+            await writable.close();
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                // User cancelled file picker - silently ignore
+                return;
+            }
+            alert(`Error saving file: ${error.message}`);
+            console.error('Error saving journal file:', error);
+        }
     };
 
     one("#statement").onclick = async () => {
-        // Open file picker
-        const [fileHandle] = await window.showOpenFilePicker({
-            types: [{
-                description: 'Text Files',
-                accept: {
-                    'text/plain': ['.nda'],
-                },
-            }],
-        });
-        const file = await fileHandle.getFile();
-        const content = await file.text();
-        let results = Nordea.parseCashAccountStatement(content);
-        results.forEach(result => Treasurer.journal.push(Nordea.mapToJornal(result)))
-        updateTables();
+        try {
+            // Open file picker for Nordea bank statement
+            const [fileHandle] = await window.showOpenFilePicker({
+                types: [{
+                    description: 'Nordea Bank Statement Files',
+                    accept: {
+                        'text/plain': ['.nda'],
+                    },
+                }],
+            });
+            const file = await fileHandle.getFile();
+            const content = await file.text();
+            
+            if (!content || content.trim().length === 0) {
+                throw new Error('File is empty');
+            }
+            
+            const results = Nordea.parseCashAccountStatement(content);
+            if (!results || results.length === 0) {
+                alert('No transactions found in the bank statement file.');
+                return;
+            }
+            
+            results.forEach(result => Treasurer.journal.push(Nordea.mapToJornal(result)));
+            updateTables();
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                // User cancelled file picker - silently ignore
+                return;
+            }
+            alert(`Error loading bank statement: ${error.message}`);
+            console.error('Error parsing bank statement:', error);
+        }
     };
 
     updateTables();
+    populateAccountFilter(); // Initialize account filter on page load
 };
