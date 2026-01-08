@@ -1,7 +1,16 @@
-// https://www.finlex.fi/fi/laki/alkup/2015/20151753
-// https://koodistot.suomi.fi/codescheme;registryCode=sbr-fi-code-lists;schemeCode=MC-2024-1
-// https://koodistot.suomi.fi/extension;registryCode=sbr-fi-code-lists;schemeCode=MC-2024-1;extensionCode=MC67
-// https://koodistot.suomi.fi/extension;registryCode=sbr-fi-code-lists;schemeCode=MC-2024-1;extensionCode=MC66
+/**
+ * Treasurer (Rahuri) - General Ledger Configuration
+ * 
+ * Copyright (c) 2025 Kaius Ruokonen
+ * Licensed under dual license: GPL-3.0 for non-profits, commercial license for others.
+ * See LICENSE file for details.
+ * 
+ * Account structure based on Finnish accounting standards:
+ * https://www.finlex.fi/fi/laki/alkup/2015/20151753
+ * https://koodistot.suomi.fi/codescheme;registryCode=sbr-fi-code-lists;schemeCode=MC-2024-1
+ * https://koodistot.suomi.fi/extension;registryCode=sbr-fi-code-lists;schemeCode=MC-2024-1;extensionCode=MC67
+ * https://koodistot.suomi.fi/extension;registryCode=sbr-fi-code-lists;schemeCode=MC-2024-1;extensionCode=MC66
+ */
 
 export let general_ledger = {
 

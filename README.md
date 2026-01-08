@@ -45,6 +45,16 @@ open -a Google\ Chrome --args  --allow-file-access-from-files
 
 Then open `ux.html` in the browser to start using the application.
 
+## License
+
+This software is available under a dual licensing model:
+
+- **GPL-3.0 for Non-Profit Organizations**: Non-profit organizations (registered associations, foundations, and other recognized non-profit entities) may use, modify, and distribute this software under the terms of the GNU General Public License version 3.
+
+- **Commercial License**: For-profit organizations and commercial entities must obtain a commercial license. For commercial licensing inquiries, please contact via [GitHub issues](https://github.com/ruoka/treasurer/issues).
+
+See the [LICENSE](LICENSE) file for full details.
+
 ## Appendix: Accounting Standards and References
 
 The application uses the official Finnish accounting standards and code lists. The account structure and naming conventions are based on the following official sources:

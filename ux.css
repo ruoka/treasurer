@@ -1,10 +1,10 @@
-#note {
-    width: 100%;
-    max-width: 600px;
-    min-height: 3rem;
-    padding: 0.5rem;
-    box-sizing: border-box;
-}
+/**
+ * Treasurer (Rahuri) - User Interface Styles
+ * 
+ * Copyright (c) 2025 Kaius Ruokonen
+ * Licensed under dual license: GPL-3.0 for non-profits, commercial license for others.
+ * See LICENSE file for details.
+ */
 
 #note {
     width: 100%;

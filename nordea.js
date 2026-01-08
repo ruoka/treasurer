@@ -1,3 +1,11 @@
+/**
+ * Treasurer (Rahuri) - Nordea Bank Statement Parser
+ * 
+ * Copyright (c) 2025 Kaius Ruokonen
+ * Licensed under dual license: GPL-3.0 for non-profits, commercial license for others.
+ * See LICENSE file for details.
+ */
+
 import { journal } from "./treasurer.js";
 
 export const parseCashAccountStatement = (text) => {

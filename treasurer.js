@@ -1,3 +1,11 @@
+/**
+ * Treasurer (Rahuri) - Double-entry bookkeeping application
+ * 
+ * Copyright (c) 2025 Kaius Ruokonen
+ * Licensed under dual license: GPL-3.0 for non-profits, commercial license for others.
+ * See LICENSE file for details.
+ */
+
 import { general_ledger } from "./general_ledger.js";
 
 // Re-export the imported object

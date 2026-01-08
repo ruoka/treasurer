@@ -1,0 +1,37 @@
+Treasurer (Rahuri) - Dual License
+
+Copyright (c) 2025 Kaius Ruokonen
+
+This software is available under two licenses:
+
+1. GNU GENERAL PUBLIC LICENSE Version 3 (GPL-3.0) for Non-Profit Organizations
+   
+   Non-profit organizations (as defined below) may use, modify, and distribute
+   this software under the terms of the GNU General Public License version 3
+   (GPL-3.0), which is included in the file GPL-3.0.txt or available at
+   https://www.gnu.org/licenses/gpl-3.0.html
+
+   For the purposes of this license, "non-profit organization" means:
+   - Registered associations (rekisteröity yhdistys) in Finland
+   - Foundations (säätiö) in Finland
+   - Other organizations that are recognized as non-profit under applicable law
+   - Organizations that do not operate for profit and whose primary purpose is
+     charitable, educational, religious, or similar non-commercial purposes
+
+2. Commercial License for For-Profit Use
+
+   For-profit organizations, commercial entities, and any use that does not
+   qualify under the non-profit exception above must obtain a commercial license
+   from the copyright holder.
+
+   For commercial licensing inquiries, please contact via GitHub issues at:
+   https://github.com/ruoka/treasurer/issues
+
+TERMS AND CONDITIONS:
+
+- Non-profit organizations may use this software under GPL-3.0 terms
+- Commercial use requires a separate commercial license agreement
+- All rights not expressly granted are reserved by the copyright holder
+- This dual licensing model allows free use for non-profits while maintaining
+  commercial rights for the copyright holder
+

@@ -1,3 +1,11 @@
+/**
+ * Treasurer (Rahuri) - User Interface
+ * 
+ * Copyright (c) 2025 Kaius Ruokonen
+ * Licensed under dual license: GPL-3.0 for non-profits, commercial license for others.
+ * See LICENSE file for details.
+ */
+
 import { one, all } from "./query.js";
 import * as Treasurer from "./treasurer.js";
 import * as Nordea from "./nordea.js";
