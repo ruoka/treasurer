@@ -495,7 +495,8 @@ window.onload = () => {
             
             // Confirm before creating opening entries
             const year = dateInput.substring(0, 4);
-            const confirmMessage = `Luodaanko avauskirjaus vuodelle ${year}?\n\nTämä luo uuden kirjauksen nykyisten tase-saldojen perusteella.`;
+            const currentEntryCount = Treasurer.journal.length;
+            const confirmMessage = `Luodaanko avauskirjaus vuodelle ${year}?\n\nVAROITUS: Tämä poistaa kaikki nykyiset päiväkirjaukset (${currentEntryCount} kirjausta) ja luo uuden avauskirjauksen nykyisten tase-saldojen perusteella.\n\nHaluatko jatkaa?`;
             
             if (!confirm(confirmMessage)) {
                 return;

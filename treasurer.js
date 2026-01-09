@@ -201,7 +201,7 @@ export const createOpeningEntries = (newYearDate, reference = null) => {
     // Create the transaction
     const transaction = {
         header: {
-            number: transactionNumber,
+            number: 1, // Start from 1 for the new year
             created: newYearDate,
             reference: entryReference,
             note: `Avauskirjaus vuodelle ${year}`
@@ -209,7 +209,8 @@ export const createOpeningEntries = (newYearDate, reference = null) => {
         entries: entries
     };
     
-    // Add to journal
+    // Clear existing journal and add only the opening entry
+    journal.length = 0;
     journal.push(transaction);
     
     return transaction;
