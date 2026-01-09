@@ -92,6 +92,26 @@ table {
     min-width: 120px;
 }
 
+/* Tili column (3rd column) - can be shorter */
+#journal th:nth-child(3),
+#journal td:nth-child(3),
+#ledger th:nth-child(3),
+#ledger td:nth-child(3) {
+    width: 6%;
+    min-width: 70px;
+}
+
+/* Nimike column (4th column) - needs more space for readability */
+#journal th:nth-child(4),
+#journal td:nth-child(4),
+#ledger th:nth-child(4),
+#ledger td:nth-child(4) {
+    width: 18%;
+    min-width: 180px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
 /* VIITE column (8th column) */
 #journal th:nth-child(8),
 #journal td:nth-child(8),
@@ -129,11 +149,17 @@ th, td {
     text-overflow: ellipsis;
 }
 
-/* Allow text wrapping in VIESTI column for better readability */
+/* Allow text wrapping in Nimike and VIESTI columns for better readability */
+#journal td:nth-child(4),
+#ledger td:nth-child(4),
 #journal td:nth-child(9),
 #ledger td:nth-child(9) {
     white-space: normal;
     word-break: break-word;
+}
+
+#journal td:nth-child(9),
+#ledger td:nth-child(9) {
     max-width: 300px;
 }
 
