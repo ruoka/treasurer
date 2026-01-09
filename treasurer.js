@@ -65,3 +65,153 @@ export const account = () => {
     balances.set('6000', balances.get('3300') + balances.get('4300') + balances.get('5300')); // Results for financial year
     balances.set('8000', balances.get('6000') + balances.get('9999')); // Surplus/Deficit for financial year (final)
 }
+
+/**
+ * Create opening entries (avauskirjaus) for a new year based on current balance sheet balances.
+ * This function creates journal entries that transfer ending balances from the previous year
+ * to opening balances for the new year.
+ * 
+ * @param {string} newYearDate - The date for the new year (format: YYYY-MM-DD, typically YYYY-01-01)
+ * @param {string} reference - Reference for the opening entry transaction (e.g., "Avaus 2025")
+ * @returns {Object} The created opening entry transaction
+ */
+export const createOpeningEntries = (newYearDate, reference = null) => {
+    // First, ensure balances are up to date
+    account();
+    
+    // Get the next transaction number
+    const currentMax = journal.map(t => parseInt(t.header.number, 10) || 0).reduce((n1, n2) => Math.max(n1, n2), 0);
+    const transactionNumber = currentMax + 1;
+    
+    // Generate reference if not provided
+    const year = newYearDate.substring(0, 4);
+    const entryReference = reference || `Avaus ${year}`;
+    
+    const entries = [];
+    let totalDebits = 0;
+    let totalCredits = 0;
+    
+    // Get all balance sheet accounts with non-zero balances
+    general_ledger.balance_sheet.forEach(accountDef => {
+        const accountNumber = accountDef.account;
+        const balance = balances.get(accountNumber) || 0;
+        
+        // Skip accounts with zero balance or non-open accounts (summary accounts)
+        if (Math.abs(balance) < 0.01 || !accountDef.open) {
+            return;
+        }
+        
+        // Get account label
+        const accountLabel = accountDef.code_prelabel_fi || accountNumber;
+        
+        if (accountNumber.startsWith("1")) {
+            // Asset accounts: positive balance = debit, negative balance = credit
+            if (balance > 0) {
+                entries.push({
+                    entry: "debit",
+                    date: newYearDate,
+                    account: accountNumber,
+                    label: accountLabel,
+                    amount: balance,
+                    number: transactionNumber,
+                    reference: entryReference,
+                    note: `Avauskirjaus vuodelle ${year}`
+                });
+                totalDebits += balance;
+            } else if (balance < 0) {
+                entries.push({
+                    entry: "credit",
+                    date: newYearDate,
+                    account: accountNumber,
+                    label: accountLabel,
+                    amount: Math.abs(balance),
+                    number: transactionNumber,
+                    reference: entryReference,
+                    note: `Avauskirjaus vuodelle ${year}`
+                });
+                totalCredits += Math.abs(balance);
+            }
+        } else {
+            // Liability/Equity accounts (2xxx): positive balance = credit, negative balance = debit
+            if (balance > 0) {
+                entries.push({
+                    entry: "credit",
+                    date: newYearDate,
+                    account: accountNumber,
+                    label: accountLabel,
+                    amount: balance,
+                    number: transactionNumber,
+                    reference: entryReference,
+                    note: `Avauskirjaus vuodelle ${year}`
+                });
+                totalCredits += balance;
+            } else if (balance < 0) {
+                entries.push({
+                    entry: "debit",
+                    date: newYearDate,
+                    account: accountNumber,
+                    label: accountLabel,
+                    amount: Math.abs(balance),
+                    number: transactionNumber,
+                    reference: entryReference,
+                    note: `Avauskirjaus vuodelle ${year}`
+                });
+                totalDebits += Math.abs(balance);
+            }
+        }
+    });
+    
+    // Calculate the difference (should go to retained earnings/opening balance account)
+    const difference = totalDebits - totalCredits;
+    
+    if (Math.abs(difference) > 0.01) {
+        // Use account 2120 (Edellisten tilikausien ylijäämä/alijäämä) for the balancing entry
+        const balancingAccount = "2120";
+        const balancingLabel = "Edellisten tilikausien ylijäämä (alijäämä)";
+        
+        if (difference > 0) {
+            // Debits exceed credits, so credit the balancing account
+            entries.push({
+                entry: "credit",
+                date: newYearDate,
+                account: balancingAccount,
+                label: balancingLabel,
+                amount: difference,
+                number: transactionNumber,
+                reference: entryReference,
+                note: `Avauskirjaus vuodelle ${year} - tasaus`
+            });
+            totalCredits += difference;
+        } else {
+            // Credits exceed debits, so debit the balancing account
+            entries.push({
+                entry: "debit",
+                date: newYearDate,
+                account: balancingAccount,
+                label: balancingLabel,
+                amount: Math.abs(difference),
+                number: transactionNumber,
+                reference: entryReference,
+                note: `Avauskirjaus vuodelle ${year} - tasaus`
+            });
+            totalDebits += Math.abs(difference);
+        }
+    }
+    
+    // Create the transaction
+    const transaction = {
+        header: {
+            number: 1, // Start from 1 for the new year
+            created: newYearDate,
+            reference: entryReference,
+            note: `Avauskirjaus vuodelle ${year}`
+        },
+        entries: entries
+    };
+    
+    // Clear existing journal and add only the opening entry
+    journal.length = 0;
+    journal.push(transaction);
+    
+    return transaction;
+}

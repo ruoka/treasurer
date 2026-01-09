@@ -464,6 +464,76 @@ window.onload = () => {
         }
     };
 
+    one("#newYear").onclick = async () => {
+        try {
+            // Prompt for the new year date (default to January 1st of current year + 1)
+            const nextYear = new Date().getFullYear() + 1;
+            const defaultDate = `${nextYear}-01-01`;
+            
+            const dateInput = prompt(
+                `Syötä uuden vuoden päivämäärä avauskirjaukselle:\n(Muoto: YYYY-MM-DD, esim. ${defaultDate})`,
+                defaultDate
+            );
+            
+            if (!dateInput) {
+                return; // User cancelled
+            }
+            
+            // Validate date format
+            const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+            if (!dateRegex.test(dateInput)) {
+                alert('Virheellinen päivämäärämuoto. Käytä muotoa YYYY-MM-DD (esim. 2025-01-01)');
+                return;
+            }
+            
+            // Validate it's a valid date
+            const date = new Date(dateInput);
+            if (isNaN(date.getTime())) {
+                alert('Virheellinen päivämäärä');
+                return;
+            }
+            
+            // Confirm before creating opening entries
+            const year = dateInput.substring(0, 4);
+            const currentEntryCount = Treasurer.journal.length;
+            const confirmMessage = `Luodaanko avauskirjaus vuodelle ${year}?\n\nVAROITUS: Tämä poistaa kaikki nykyiset päiväkirjaukset (${currentEntryCount} kirjausta) ja luo uuden avauskirjauksen nykyisten tase-saldojen perusteella.\n\nHaluatko jatkaa?`;
+            
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+            
+            // Create opening entries
+            const transaction = Treasurer.createOpeningEntries(dateInput);
+            
+            if (transaction.entries.length === 0) {
+                alert('Ei saldoja avauskirjaukseen. Tarkista että tase-saldoja on olemassa.');
+                return;
+            }
+            
+            // Verify the transaction balances
+            let debits = 0;
+            let credits = 0;
+            transaction.entries.forEach(entry => {
+                if (entry.entry === 'debit') {
+                    debits += entry.amount;
+                } else {
+                    credits += entry.amount;
+                }
+            });
+            
+            if (Math.abs(debits - credits) > 0.01) {
+                alert(`Varoitus: Avauskirjauksen debetit ja kreditit eivät täsmää. Ero: ${Math.abs(debits - credits).toFixed(2)} €`);
+            } else {
+                alert(`Avauskirjaus luotu onnistuneesti!\n\nVuosi: ${year}\nKirjauksia: ${transaction.entries.length}\nDebetit: ${debits.toFixed(2)} €\nKreditit: ${credits.toFixed(2)} €`);
+            }
+            
+            updateTables();
+        } catch (error) {
+            alert(`Virhe avauskirjauksen luomisessa: ${error.message}`);
+            console.error('Error creating opening entries:', error);
+        }
+    };
+
     updateTables();
     populateAccountFilter(); // Initialize account filter on page load
 };
