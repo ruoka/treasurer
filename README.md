@@ -1,6 +1,6 @@
 # Treasurer (Rahuri)
 
-A web-based double-entry bookkeeping application for managing financial transactions and generating accounting reports. The application provides a complete accounting system with journal entries, general ledger, balance sheet, and income statement reporting.
+Web-based double-entry bookkeeping application for non-profit organizations in Finland. Supports journal entries, general ledger, balance sheets, and income statements following Finnish accounting standards (GPL-3.0 for non-profits, commercial license available).
 
 ## Purpose
 
