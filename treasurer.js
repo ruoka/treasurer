@@ -49,8 +49,12 @@ export const account = () => {
     // Rebuild ledger from journal entries
     ledger.length = 0;
     journal.forEach(transaction => ledger.push(...transaction.entries));
-    // Sort by account number, then by transaction number
-    ledger.sort((lhs, rhs) => lhs.account.localeCompare(rhs.account) ? lhs.account.localeCompare(rhs.account) : (lhs.number > rhs.number));
+    // Sort by account number (9999 first for easier allocation), then by transaction number
+    ledger.sort((lhs, rhs) => {
+        if (lhs.account === '9999' && rhs.account !== '9999') return -1;
+        if (lhs.account !== '9999' && rhs.account === '9999') return 1;
+        return lhs.account.localeCompare(rhs.account) ? lhs.account.localeCompare(rhs.account) : (lhs.number > rhs.number);
+    });
     
     // Calculate balances for individual accounts in balance sheet and income statement
     general_ledger.balance_sheet.forEach(ledger => balances.set(ledger.account, sum(ledger.account.replace(/\.?0+$/, ''))));

@@ -63,7 +63,7 @@ body {
 /* Ensure journal and ledger tables can expand for wider content */
 #journal,
 #ledger {
-    min-width: 1000px;
+    min-width: 1400px;
 }
 
 table {
@@ -110,6 +110,35 @@ table {
     min-width: 180px;
     word-wrap: break-word;
     overflow-wrap: break-word;
+}
+
+/* Credit/Debit column (5th column) - ensure visible */
+#journal th:nth-child(5),
+#journal td:nth-child(5),
+#ledger th:nth-child(5),
+#ledger td:nth-child(5) {
+    width: 8%;
+    min-width: 90px;
+}
+
+/* Summa column (6th column) - needs space for amounts */
+#journal th:nth-child(6),
+#journal td:nth-child(6),
+#ledger th:nth-child(6),
+#ledger td:nth-child(6) {
+    width: 10%;
+    min-width: 120px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* Välisumma column (7th column) - ledger only, needs space for amounts */
+#ledger th:nth-child(7),
+#ledger td:nth-child(7) {
+    width: 10%;
+    min-width: 120px;
+    text-align: right;
+    white-space: nowrap;
 }
 
 /* VIITE column (8th column) */

@@ -109,7 +109,19 @@ window.onload = () => {
         const tbody1 = one("table#journal tbody");
         tbody1.innerHTML = "";
 
-        Treasurer.journal.forEach(transaction => transaction.entries.forEach(entry => {
+        const sortedJournal = [...Treasurer.journal].sort((a, b) => {
+            const dateA = a.header.created || a.entries[0]?.date || '';
+            const dateB = b.header.created || b.entries[0]?.date || '';
+            return dateA.localeCompare(dateB);
+        });
+
+        sortedJournal.forEach(transaction => {
+            const entries = transaction.entries.slice().sort((a, b) => {
+                if (a.account === '9999' && b.account !== '9999') return 1;
+                if (a.account !== '9999' && b.account === '9999') return -1;
+                return 0;
+            });
+            entries.forEach(entry => {
             entry.number = transaction.header.number;
             entry.reference = transaction.header.reference;
             entry.note = transaction.header.note;
@@ -126,8 +138,9 @@ window.onload = () => {
             tr.appendChild(document.createElement("td")); // intentionally empty
             tr.appendChild(document.createElement("td")).textContent = entry.reference;
             tr.appendChild(document.createElement("td")).textContent = entry.note;
-            tbody1.prepend(tr);
-        }));
+            tbody1.append(tr);
+        });
+        });
 
         let account = "";
         let subtotal = 0.00;
@@ -215,11 +228,11 @@ window.onload = () => {
 
             for (let div of divs) {
                 const entry = transaction.entries[index];
-                const amount = typeof entry.amount === 'number' ? entry.amount : parseFloat(entry.amount) || 0;
+                const amount = typeof entry.amount === 'number' ? entry.amount : parseFloat(String(entry.amount).replace(',', '.')) || 0;
                 div.children[0].value = entry.entry;
                 div.children[1].value = entry.date;
                 div.children[2].value = entry.account;
-                div.children[3].value = amount.toFixed(2).replace('.',',');
+                div.children[3].value = amount.toFixed(2); // Use dot - HTML number input requires it
                 ++index;
             };
 
@@ -232,11 +245,11 @@ window.onload = () => {
                 button.setAttribute("onclick", "this.parentElement.remove();");
 
                 const entry = transaction.entries[index];
-                const amount = typeof entry.amount === 'number' ? entry.amount : parseFloat(entry.amount) || 0;
+                const amount = typeof entry.amount === 'number' ? entry.amount : parseFloat(String(entry.amount).replace(',', '.')) || 0;
                 div.children[0].value = entry.entry;
                 div.children[1].value = entry.date;
                 div.children[2].value = entry.account;
-                div.children[3].value = amount.toFixed(2).replace('.',',');
+                div.children[3].value = amount.toFixed(2); // Use dot - HTML number input requires it
                 ++index;
             }
             one("#created").focus();
