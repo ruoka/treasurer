@@ -50,6 +50,12 @@ export const parseCashAccountStatement = (text) => {
         }
 
         if (line.startsWith('T1018800')) {
+            // Skip junction breakdown (J) lines: Palvelumaksu fees have one JE (total) line
+            // and multiple J (breakdown) lines. J lines have payment date 000000.
+            // Including them would double-count fees (e.g. -21.58 total + -3.94 breakdown = -25.52).
+            const paymentDate = line.slice(36, 42);
+            if (paymentDate === '000000') continue;
+
             currentResult = {
                 accountNumber: activeAccount,
                 bankReference: line.slice(12, 30),
