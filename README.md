@@ -2,6 +2,8 @@
 
 Web-based double-entry bookkeeping application for non-profit organizations in Finland. Supports journal entries, general ledger, balance sheets, and income statements following Finnish accounting standards (GPL-3.0 for non-profits, commercial license available).
 
+![Rahuri screenshot](docs/rahuri-screenshot.png)
+
 ## Purpose
 
 Treasurer is designed for **non-profit general-purpose organizations** (aatteelliset yhteisöt) in Finland, such as registered associations (rekisteröity yhdistys) and foundations (säätiö). The application helps these organizations manage their financial records using standard double-entry bookkeeping principles. It supports:
