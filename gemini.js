@@ -38,7 +38,11 @@ Finnish non-profit chart of accounts (4-digit codes):
 
 Nordea transaction types: 1705/1710 Viitemaksu (reference payment), 1710 Mobiilimaksu (MobilePay), 1710 Pano (deposit), 2720 Itsepalvelu/Oma siirto (self-service), 2730 Palvelumaksu (bank fee).
 
-MobilePay (Mobiilimaksu, VIPPS MOBILEPAY AS): When the reference contains a leskenropo/ropo-keräys collection code (e.g. starts with 2000490990010...), book as 4130 Ropo-keräys (leskenropo). For 1710 Pano with message "Ropo" or "Ropo [kuukausi]", use 4130. Otherwise use 3100 or 4110 based on the message.
+CRITICAL - Internal transfers (MUST use 1240): When description contains "Oma siirto" or "Itsepalvelu" together with "Korjaus" or "Tililtä" (e.g. "2720 Oma siirto, V. JA O.M. SUOMI LOOSI 1 RY F., Korjaus" or "1710 Oma siirto, ..., Tililtä KÄYTTÖTILI"), the contra MUST be 1240. Both sides are 1240; the transaction nets to zero. Never use 3200 or 3100 for these.
+
+Ropo-keräys (4130): Book as 4130 when the description/message contains "ropo" or "lesken ropo" (case insensitive). This applies to incoming payments: 1710 Pano, 1710 Mobiilimaksu, 1710 Viitemaksu. Examples: "Ropo tammikuu", "Ropo helmikuu", "Lesken ropo tilitys", "Ropo maaliskuu 2025". Also when MobilePay reference contains leskenropo collection code (e.g. 2000490990010...).
+
+MobilePay to Tuotot (not ropo): MobilePay (Mobiilimaksu, VIPPS MOBILEPAY AS) or 1710 Viitemaksu without "ropo" in the message and without leskenropo reference → use 3100 or 4110 based on amount and membership context. These are general sales, event fees, or other operating income.
 
 Separating Tuotot (3100) vs Jäsenmaksut (4110):
 - 4110 Jäsenmaksut: when amount is 210 € or 220 € (membership fee), or when the message clearly indicates membership (e.g. "jäsenmaksu", "asteenmaksu", "2025 jasenmaksu").
