@@ -141,25 +141,32 @@ table {
     white-space: nowrap;
 }
 
-/* VIITE column (8th column) */
-#journal th:nth-child(8),
-#journal td:nth-child(8),
-#ledger th:nth-child(8),
-#ledger td:nth-child(8) {
+/* VIITE column (9th in journal, 9th in ledger) */
+#journal th:nth-child(9),
+#journal td:nth-child(9),
+#ledger th:nth-child(9),
+#ledger td:nth-child(9) {
     width: 10%;
     min-width: 100px;
     word-wrap: break-word;
 }
 
-/* VIESTI column (9th column) - needs more space */
-#journal th:nth-child(9),
-#journal td:nth-child(9),
-#ledger th:nth-child(9),
-#ledger td:nth-child(9) {
+/* VIESTI column (10th in journal and ledger) */
+#journal th:nth-child(10),
+#journal td:nth-child(10),
+#ledger th:nth-child(10),
+#ledger td:nth-child(10) {
     width: 20%;
     min-width: 200px;
     word-wrap: break-word;
     overflow-wrap: break-word;
+}
+
+/* Tila column in ledger (8th) */
+#ledger th:nth-child(8),
+#ledger td:nth-child(8) {
+    width: 8%;
+    min-width: 90px;
 }
 
 caption {
@@ -181,14 +188,14 @@ th, td {
 /* Allow text wrapping in Nimike and VIESTI columns for better readability */
 #journal td:nth-child(4),
 #ledger td:nth-child(4),
-#journal td:nth-child(9),
-#ledger td:nth-child(9) {
+#journal td:nth-child(10),
+#ledger td:nth-child(10) {
     white-space: normal;
     word-break: break-word;
 }
 
-#journal td:nth-child(9),
-#ledger td:nth-child(9) {
+#journal td:nth-child(10),
+#ledger td:nth-child(10) {
     max-width: 300px;
 }
 
@@ -269,4 +276,120 @@ th {
 
 #ledger-filters button {
     justify-self: start;
+}
+
+/* Settings dialog */
+#settingsDialog {
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    min-width: 400px;
+}
+
+#settingsDialog form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#settingsDialog label {
+    font-weight: 500;
+}
+
+#settingsDialog #apiKey {
+    padding: 0.5rem;
+    font-family: monospace;
+}
+
+.settings-hint {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.dialog-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+#suggestProgressDialog {
+    padding: 1.5rem;
+    min-width: 320px;
+    max-width: 90vw;
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    margin: 0;
+}
+
+#suggestProgressDialog h2 {
+    margin-top: 0;
+}
+
+#suggestProgressText {
+    margin: 1rem 0;
+    min-height: 2em;
+}
+
+#suggestErrorDetails {
+    display: none;
+    margin: 0.5rem 0;
+    padding: 0.75rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    max-height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+#suggestErrorDetails:not(:empty) {
+    display: block;
+}
+
+/* Mapping status badges */
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.status-unmapped {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-proposed {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-confirmed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+/* Confirm button in journal row */
+.btn-confirm {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+    background: #2f7a3d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+.btn-confirm:hover {
+    background: #1d4e29;
+}
+
+/* Journal Tila column */
+#journal th:nth-child(7),
+#journal td:nth-child(7) {
+    width: 8%;
+    min-width: 90px;
 }

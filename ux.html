@@ -21,8 +21,32 @@
             <button id="open" type="button">Avaa</button>
             <button id="save" type="button">Tallenna</button>
             <button id="statement" type="button">Lataa Nordean tiliote</button>
+            <button id="suggestMappings" type="button">Ehdota tilejä (AI)</button>
             <button id="newYear" type="button">Uusi vuosi - Avauskirjaus</button>
+            <button id="settings" type="button">Asetukset</button>
         </div>
+
+        <dialog id="suggestProgressDialog">
+            <h2>Ehdota tilejä</h2>
+            <p id="suggestProgressText">Käsitellään...</p>
+            <pre id="suggestErrorDetails"></pre>
+            <div class="dialog-buttons">
+                <button type="button" id="suggestStopBtn">Lopeta</button>
+            </div>
+        </dialog>
+
+        <dialog id="settingsDialog">
+            <form method="dialog">
+                <h2>Asetukset</h2>
+                <label for="apiKey">Gemini API-avain</label>
+                <input type="password" id="apiKey" placeholder="Syötä API-avain (tallennetaan selaimen paikalliseen tallennustilaan)">
+                <p class="settings-hint">Hae avain: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a></p>
+                <div class="dialog-buttons">
+                    <button type="submit" value="save">Tallenna</button>
+                    <button type="button" id="settingsCancel">Peruuta</button>
+                </div>
+            </form>
+        </dialog>
 
         <form id="transaction">
 
@@ -127,6 +151,7 @@
                                 <th>Nimike</th>
                                 <th>Credit/Debit</th>
                                 <th>Summa</th>
+                                <th>Tila</th>
                                 <th></th>
                                 <th>Viite</th>
                                 <th>Viesti</th>
@@ -165,6 +190,7 @@
                                 <th>Credit/Debit</th>
                                 <th>Summa</th>
                                 <th>Välisumma</th>
+                                <th>Tila</th>
                                 <th>Viite</th>
                                 <th>Viesti</th>
                             </tr>

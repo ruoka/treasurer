@@ -9,6 +9,7 @@
 import { one, all } from "./query.js";
 import * as Treasurer from "./treasurer.js";
 import * as Nordea from "./nordea.js";
+import * as Gemini from "./gemini.js";
 
 window.onload = () => {
 
@@ -84,9 +85,9 @@ window.onload = () => {
         const rows = Array.from(ledgerTableBody.querySelectorAll('tr'));
 
         rows.forEach(row => {
-            const rowDate = new Date(row.querySelector('td:nth-child(2)').textContent); // Assuming date is in the second column
-            const rowAccount = row.querySelector('td:nth-child(3)').textContent; // Assuming account is in the third column
-            const messageCell = row.querySelector('td:nth-child(9)'); // Assuming 'Viesti' is the 9th child
+            const rowDate = new Date(row.querySelector('td:nth-child(2)').textContent);
+            const rowAccount = row.querySelector('td:nth-child(3)').textContent;
+            const messageCell = row.querySelector('td:nth-child(10)'); // Viesti column (ledger has 10 columns)
 
             const dateMatch = (!from || rowDate >= from) && (!to || rowDate <= to);
             const accountMatch = !account || rowAccount.includes(account);
@@ -99,6 +100,34 @@ window.onload = () => {
             }
         });
     }
+
+    const normalizeMappingStatus = (tx) => {
+        let s = tx.mappingStatus;
+        if (!s) {
+            const has9999 = tx.entries.some(e => e.account === '9999');
+            s = has9999 ? 'unmapped' : 'confirmed';
+        }
+        return s;
+    };
+
+    const statusLabel = (status) => {
+        const labels = { unmapped: 'Kirjaamatta', proposed: 'Ehdotettu', confirmed: 'Vahvistettu' };
+        return labels[status] || status;
+    };
+
+    const getDisplayLabel = (entry) => {
+        const label = (entry.label || '').trim();
+        if (entry.account === '9999') return label || 'Kirjaamattomat';
+        if (label && label !== 'Kirjaamattomat') return label;
+        const def = Treasurer.general_ledger.balance_sheet.find(a => a.account === entry.account)
+            || Treasurer.general_ledger.income_statement.find(a => a.account === entry.account);
+        return def?.code_prelabel_fi || label || 'Kirjaamattomat';
+    };
+
+    const confirmMapping = (number) => {
+        const tx = Treasurer.journal.find(t => t.header.number == number);
+        if (tx) { tx.mappingStatus = 'confirmed'; updateTables(); }
+    };
 
     const updateTables = () => {
 
@@ -116,6 +145,7 @@ window.onload = () => {
         });
 
         sortedJournal.forEach(transaction => {
+            const status = normalizeMappingStatus(transaction);
             const entries = transaction.entries.slice().sort((a, b) => {
                 if (a.account === '9999' && b.account !== '9999') return 1;
                 if (a.account !== '9999' && b.account === '9999') return -1;
@@ -126,16 +156,32 @@ window.onload = () => {
             entry.reference = transaction.header.reference;
             entry.note = transaction.header.note;
             const tr = document.createElement("tr");
+            tr.dataset.transactionNumber = transaction.header.number;
             tr.appendChild(document.createElement("td")).textContent = entry.number;
             tr.lastChild.classList.add('number');
             tr.appendChild(document.createElement("td")).textContent = entry.date;
             tr.appendChild(document.createElement("td")).textContent = entry.account;
-            tr.appendChild(document.createElement("td")).textContent = entry.label;
+            tr.appendChild(document.createElement("td")).textContent = getDisplayLabel(entry);
             tr.appendChild(document.createElement("td")).textContent = entry.entry;
             // Ensure amount is a number
             const amount = typeof entry.amount === 'number' ? entry.amount : parseFloat(entry.amount) || 0;
             tr.appendChild(document.createElement("td")).textContent = amount.toFixed(2).replace('.',',');
-            tr.appendChild(document.createElement("td")); // intentionally empty
+            const statusCell = document.createElement("td");
+            const badge = document.createElement("span");
+            badge.className = "status-badge status-" + status;
+            badge.textContent = statusLabel(status);
+            statusCell.appendChild(badge);
+            if (status === 'proposed') {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "btn-confirm";
+                btn.textContent = "Vahvista";
+                btn.onclick = (e) => { e.stopPropagation(); confirmMapping(transaction.header.number); };
+                statusCell.appendChild(document.createTextNode(" "));
+                statusCell.appendChild(btn);
+            }
+            tr.appendChild(statusCell);
+            tr.appendChild(document.createElement("td"));
             tr.appendChild(document.createElement("td")).textContent = entry.reference;
             tr.appendChild(document.createElement("td")).textContent = entry.note;
             tbody1.append(tr);
@@ -148,6 +194,8 @@ window.onload = () => {
         tbody2.innerHTML = "";
 
         Treasurer.ledger.forEach(entry => {
+            const transaction = Treasurer.journal.find(t => t.header.number == entry.number);
+            const status = transaction ? normalizeMappingStatus(transaction) : 'confirmed';
 
             if (account.localeCompare(entry.account)) { // is same returns 0 == false
                 account = entry.account;
@@ -158,14 +206,30 @@ window.onload = () => {
             subtotal += ("credit".localeCompare(entry.entry) ? -1 : 1) * amount;
 
             const tr = document.createElement("tr");
+            tr.dataset.transactionNumber = entry.number;
             tr.appendChild(document.createElement("td")).textContent = entry.number;
             tr.lastChild.classList.add('number');
             tr.appendChild(document.createElement("td")).textContent = entry.date;
             tr.appendChild(document.createElement("td")).textContent = entry.account;
-            tr.appendChild(document.createElement("td")).textContent = entry.label;
+            tr.appendChild(document.createElement("td")).textContent = getDisplayLabel(entry);
             tr.appendChild(document.createElement("td")).textContent = entry.entry;
             tr.appendChild(document.createElement("td")).textContent = amount.toFixed(2).replace('.',',');
             tr.appendChild(document.createElement("td")).textContent = subtotal.toFixed(2).replace('.',',');
+            const statusCell = document.createElement("td");
+            const badge = document.createElement("span");
+            badge.className = "status-badge status-" + status;
+            badge.textContent = statusLabel(status);
+            statusCell.appendChild(badge);
+            if (status === 'proposed') {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "btn-confirm";
+                btn.textContent = "Vahvista";
+                btn.onclick = (e) => { e.stopPropagation(); confirmMapping(entry.number); };
+                statusCell.appendChild(document.createTextNode(" "));
+                statusCell.appendChild(btn);
+            }
+            tr.appendChild(statusCell);
             tr.appendChild(document.createElement("td")).textContent = entry.reference;
             tr.appendChild(document.createElement("td")).textContent = entry.note;
             tbody2.append(tr);
@@ -354,9 +418,11 @@ window.onload = () => {
             alert(`Success: The ${divs.length} entries for transaction ${transaction.header.reference} are matching. Total credits/debits are ${credits} €`);
             if (update) {
                 const index = Treasurer.journal.findIndex(existing => existing.header.number == transaction.header.number);
+                transaction.mappingStatus = 'confirmed';
                 Treasurer.journal[index] = transaction;
                 one("#update").checked = false;
             } else {
+                transaction.mappingStatus = transaction.entries.some(e => e.account === '9999') ? 'unmapped' : 'confirmed';
                 Treasurer.journal.push(transaction);
             }
             updateTables();
@@ -396,14 +462,19 @@ window.onload = () => {
                 throw new Error('Invalid file format: expected an array of transactions');
             }
             
-            // Normalize amounts to numbers (handle both string and number formats)
-            const normalizedData = parsedData.map(transaction => ({
-                ...transaction,
-                entries: transaction.entries.map(entry => ({
-                    ...entry,
-                    amount: typeof entry.amount === 'string' ? parseFloat(entry.amount) : entry.amount
-                }))
-            }));
+            // Normalize amounts and mappingStatus
+            const normalizedData = parsedData.map(transaction => {
+                const has9999 = transaction.entries?.some(e => e.account === '9999');
+                const status = transaction.mappingStatus || (has9999 ? 'unmapped' : 'confirmed');
+                return {
+                    ...transaction,
+                    mappingStatus: status,
+                    entries: transaction.entries.map(entry => ({
+                        ...entry,
+                        amount: typeof entry.amount === 'string' ? parseFloat(entry.amount) : entry.amount
+                    }))
+                };
+            });
             
             Treasurer.journal.push(...normalizedData);
             updateTables();
@@ -545,6 +616,90 @@ window.onload = () => {
             alert(`Virhe avauskirjauksen luomisessa: ${error.message}`);
             console.error('Error creating opening entries:', error);
         }
+    };
+
+    one("#settings").onclick = () => {
+        const dialog = one("#settingsDialog");
+        one("#apiKey").value = Gemini.getApiKey();
+        dialog.showModal();
+    };
+
+    one("#settingsCancel").onclick = () => one("#settingsDialog").close();
+
+    one("#settingsDialog form").onsubmit = () => {
+        Gemini.setApiKey(one("#apiKey").value.trim());
+        one("#settingsDialog").close();
+    };
+
+    one("#suggestMappings").onclick = async () => {
+        const unmapped = Treasurer.journal.filter(t => {
+            const s = t.mappingStatus || (t.entries.some(e => e.account === '9999') ? 'unmapped' : 'confirmed');
+            return s === 'unmapped' && t.entries.some(e => e.account === '9999');
+        });
+        if (unmapped.length === 0) {
+            alert('Ei kirjaamattomia tapahtumia.');
+            return;
+        }
+        if (!Gemini.getApiKey()) {
+            alert('Lisää Gemini API-avain Asetukset-valikosta.');
+            one("#settings").click();
+            return;
+        }
+        const dialog = one("#suggestProgressDialog");
+        const progressText = one("#suggestProgressText");
+        const errorDetails = one("#suggestErrorDetails");
+        let abortRequested = false;
+        one("#suggestStopBtn").onclick = () => { abortRequested = true; dialog.close(); };
+        progressText.textContent = 'Aloitetaan...';
+        progressText.style.color = '';
+        errorDetails.textContent = '';
+        one('.tab-link[data-tab="journal"]').click();
+        dialog.show();
+
+        let done = 0;
+        let failed = 0;
+        const failedErrors = [];
+        const RATE_LIMIT_DELAY_MS = 3500; // ~17 req/min, under 20/min free tier
+
+        for (let i = 0; i < unmapped.length; i++) {
+            if (abortRequested) break;
+            if (i > 0) await new Promise(r => setTimeout(r, RATE_LIMIT_DELAY_MS));
+            const tx = unmapped[i];
+            progressText.textContent = `Käsitellään ${i + 1} / ${unmapped.length}: ${tx.header.reference}`;
+            errorDetails.textContent = '';
+            const entry9999 = tx.entries.find(e => e.account === '9999');
+            if (!entry9999) continue;
+            const amount = (typeof entry9999.amount === 'number' ? entry9999.amount : parseFloat(entry9999.amount) || 0) *
+                (entry9999.entry === 'credit' ? 1 : -1);
+            const date = entry9999.date || tx.header.created;
+            try {
+                const { account, label } = await Gemini.suggestAccount(tx.header.note, amount, date);
+                entry9999.account = account;
+                entry9999.label = label;
+                tx.mappingStatus = 'proposed';
+                done++;
+                updateTables();
+            } catch (err) {
+                console.error('Gemini error for tx', tx.header.number, err);
+                failed++;
+                const fullError = `${tx.header.reference}: ${err.message}`;
+                failedErrors.push(fullError);
+                progressText.textContent = `Virhe ${tx.header.reference}. Katso yksityiskohdat alla.`;
+                progressText.style.color = '#c00';
+                errorDetails.textContent = fullError;
+                await new Promise(r => setTimeout(r, 3000));
+            }
+        }
+        dialog.close();
+        updateTables();
+        let msg = abortRequested
+            ? `Keskeytetty. Ehdotettu ${done} tapahtumaa.`
+            : `Ehdotettu ${done} tapahtumaa.${failed ? ` ${failed} epäonnistui.` : ''} Tarkista ja vahvista jokainen rivi.`;
+        if (failedErrors.length > 0) {
+            msg += '\n\nVirheet:\n' + failedErrors.slice(0, 5).join('\n');
+            if (failedErrors.length > 5) msg += '\n... ja ' + (failedErrors.length - 5) + ' muuta';
+        }
+        alert(msg);
     };
 
     updateTables();

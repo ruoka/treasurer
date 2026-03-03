@@ -102,6 +102,7 @@ export const mapToJornal = (old) => {
             "reference": old.bankReference,
             "note": newDescription
         },
+        "mappingStatus": "unmapped",
         "entries": [
             {
                 "entry": old.amount >= 0 ? 'debit' : 'credit',
