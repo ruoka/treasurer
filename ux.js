@@ -631,6 +631,23 @@ window.onload = () => {
         one("#settingsDialog").close();
     };
 
+    one("#promptEdit").onclick = () => {
+        const dialog = one("#promptDialog");
+        one("#promptText").value = Gemini.getPrompt() || Gemini.getDefaultPrompt();
+        dialog.showModal();
+    };
+
+    one("#promptCancel").onclick = () => one("#promptDialog").close();
+
+    one("#promptReset").onclick = () => {
+        one("#promptText").value = Gemini.getDefaultPrompt();
+    };
+
+    one("#promptDialog form").onsubmit = () => {
+        Gemini.setPrompt(one("#promptText").value);
+        one("#promptDialog").close();
+    };
+
     one("#suggestMappings").onclick = async () => {
         const unmapped = Treasurer.journal.filter(t => {
             const s = t.mappingStatus || (t.entries.some(e => e.account === '9999') ? 'unmapped' : 'confirmed');
@@ -661,6 +678,37 @@ window.onload = () => {
         const failedErrors = [];
         const RATE_LIMIT_DELAY_MS = 3500; // ~17 req/min, under 20/min free tier
 
+        const buildContext = () => {
+            const accountSet = new Map();
+            const allAccounts = [...Treasurer.general_ledger.balance_sheet, ...Treasurer.general_ledger.income_statement];
+            const lookup = (acct) => allAccounts.find(a => a.account === acct)?.code_prelabel_fi || acct;
+            Treasurer.journal.forEach(tx => {
+                tx.entries.forEach(e => {
+                    if (e.account && e.account !== '9999' && !accountSet.has(e.account)) {
+                        accountSet.set(e.account, lookup(e.account));
+                    }
+                });
+            });
+            const usedAccounts = Array.from(accountSet.entries()).map(([account, label]) => ({ account, label })).sort((a, b) => a.account.localeCompare(b.account));
+
+            const exampleMappings = [];
+            const seen = new Set();
+            Treasurer.journal.forEach(tx => {
+                if (tx.entries.some(e => e.account === '9999')) return;
+                const has1240 = tx.entries.some(e => e.account === '1240');
+                const contra = tx.entries.find(e => e.account !== '1240');
+                if (!has1240 || !contra || tx.entries.length !== 2) return;
+                const prefix = (tx.header.note || '').slice(0, 50).replace(/,?\s*$/, '');
+                const key = prefix.slice(0, 35);
+                if (seen.has(key) || exampleMappings.length >= 12) return;
+                seen.add(key);
+                exampleMappings.push({ notePrefix: prefix, account: contra.account, label: contra.label || lookup(contra.account) });
+            });
+
+            return { usedAccounts, exampleMappings };
+        };
+        const context = buildContext();
+
         for (let i = 0; i < unmapped.length; i++) {
             if (abortRequested) break;
             if (i > 0) await new Promise(r => setTimeout(r, RATE_LIMIT_DELAY_MS));
@@ -673,11 +721,12 @@ window.onload = () => {
                 (entry9999.entry === 'credit' ? 1 : -1);
             const date = entry9999.date || tx.header.created;
             try {
-                const { account, label } = await Gemini.suggestAccount(tx.header.note, amount, date);
+                const { account, label } = await Gemini.suggestAccount(tx.header.note, amount, date, context);
                 entry9999.account = account;
                 entry9999.label = label;
                 tx.mappingStatus = 'proposed';
                 done++;
+                Object.assign(context, buildContext());
                 updateTables();
             } catch (err) {
                 console.error('Gemini error for tx', tx.header.number, err);

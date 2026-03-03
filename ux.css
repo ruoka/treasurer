@@ -36,6 +36,12 @@ body {
     margin-bottom: 1.5rem;
 }
 
+.controls .ai-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-left: auto;
+}
+
 .tables {
     display: flex;
     flex-direction: column;
@@ -304,6 +310,21 @@ th {
 .settings-hint {
     font-size: 0.85rem;
     color: #666;
+}
+
+#promptDialog {
+    min-width: 560px;
+    max-width: 90vw;
+}
+
+#promptDialog #promptText {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+    font-family: monospace;
+    font-size: 0.85em;
+    width: 100%;
 }
 
 .dialog-buttons {

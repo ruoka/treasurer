@@ -7,6 +7,7 @@
  */
 
 const STORAGE_KEY = 'rahuri_gemini_api_key';
+const PROMPT_STORAGE_KEY = 'rahuri_gemini_prompt';
 // gemini-2.5-flash: stable, production-grade, good for structured JSON output
 const MODEL = 'gemini-2.5-flash';
 const API_BASE = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
@@ -18,37 +19,75 @@ export const setApiKey = (key) => {
   else localStorage.removeItem(STORAGE_KEY);
 };
 
+export const getPrompt = () => localStorage.getItem(PROMPT_STORAGE_KEY) || '';
+
+export const setPrompt = (text) => {
+  if (text && text.trim()) localStorage.setItem(PROMPT_STORAGE_KEY, text.trim());
+  else localStorage.removeItem(PROMPT_STORAGE_KEY);
+};
+
+const DEFAULT_PROMPT_TEMPLATE = `You are a Finnish accounting assistant for non-profit organizations (aatteelliset yhteisöt).
+Map bank transactions to the contra-entry account (the non-bank side). Bank account is always 1240.
+{{CONTEXT}}
+
+Finnish non-profit chart of accounts (4-digit codes):
+- 1xxx Assets: 1120 Sijoitukset, 1211 Valmiit tuotteet, 1212 Muu vaihto-omaisuus, 1231 Lyhytaikaiset saamiset, 1240 Rahat ja pankkisaamiset
+- 2xxx Liabilities/Equity: 2111 Sijoitetun vapaan oman pääoman rahasto, 2112 Yhtiöjärjestyksen rahastot, 2120 Edellisten tilikausien ylijäämä, 2212 Lyhytaikaiset saadut ennakot
+- 3xxx/4xxx Income: 3100 Tuotot varsinainen toiminta, 3210 Lahjoitukset, 4110 Jäsenmaksut, 4120 Astemaksut, 4130 Ropo-keräys, 4140 Juhla-keräys, 5100 Tuotot sijoitus- ja rahoitustoiminta
+- 3xxx/4xxx/5xxx Expenses: 3200 Kulut varsinainen toiminta, 4200 Kulut varainhankinta, 5200 Kulut sijoitus- ja rahoitustoiminta
+
+Nordea transaction types: 1705/1710 Viitemaksu (reference payment), 1710 Mobiilimaksu (MobilePay), 1710 Pano (deposit), 2720 Itsepalvelu/Oma siirto (self-service), 2730 Palvelumaksu (bank fee).
+
+MobilePay (Mobiilimaksu, VIPPS MOBILEPAY AS): When the reference contains a leskenropo/ropo-keräys collection code (e.g. starts with 2000490990010...), book as 4130 Ropo-keräys (leskenropo). For 1710 Pano with message "Ropo" or "Ropo [kuukausi]", use 4130. Otherwise use 3100 or 4110 based on the message.
+
+Separating Tuotot (3100) vs Jäsenmaksut (4110):
+- 4110 Jäsenmaksut: when amount is 210 € or 220 € (membership fee), or when the message clearly indicates membership (e.g. "jäsenmaksu", "asteenmaksu", "2025 jasenmaksu").
+- 3100 Tuotot varsinainen toiminta: general operating income, sales, services, event fees, donations; use when amount is not 210/220 € and no membership context.
+
+Transaction to map:
+- Description: "{{DESCRIPTION}}"
+- Amount: {{AMOUNT}} € ({{DIRECTION}})
+- Date: {{DATE}}
+
+Return ONLY valid JSON, no other text:
+{"account":"XXXX","label":"Finnish label"}
+
+Example: {"account":"5200","label":"Kulut, sijoitus- ja rahoitustoiminta"}`;
+
+export const getDefaultPrompt = () => DEFAULT_PROMPT_TEMPLATE;
+
 /**
  * Suggest account mapping for a bank transaction using Gemini.
  * @param {string} note - Transaction description
  * @param {number} amount - Amount in EUR (positive = inflow, negative = outflow)
  * @param {string} date - Date string
+ * @param {{ usedAccounts?: Array<{account:string,label:string}>, exampleMappings?: Array<{notePrefix:string,account:string,label:string}> }} [context] - Optional: accounts in use and example mappings from this org's journal
  * @returns {Promise<{account: string, label: string}>}
  */
-export const suggestAccount = async (note, amount, date) => {
+export const suggestAccount = async (note, amount, date, context = {}) => {
   const apiKey = getApiKey();
   if (!apiKey) throw new Error('Gemini API-avain puuttuu. Lisää se Asetukset-valikosta.');
 
   const direction = amount >= 0 ? 'inflow (panot)' : 'outflow (otot)';
-  const prompt = `You are a Finnish accounting assistant for non-profit organizations (aatteelliset yhteisöt).
-Given this bank transaction:
-- Description: "${(note || '').slice(0, 500)}"
-- Amount: ${amount.toFixed(2)} € (${direction})
-- Date: ${date}
+  const usedAccounts = context.usedAccounts || [];
+  const exampleMappings = context.exampleMappings || [];
 
-Suggest the appropriate Finnish accounting account code (4 digits) for the contra-entry (the non-bank side).
-Use the Finnish non-profit chart of accounts:
-- 1xxx: Assets (Vastaavaa)
-- 2xxx: Liabilities, Equity (Vastattavaa)
-- 3xxx: Income (Tuotot) - e.g. 3100, 3200, 4100, 4200
-- 5xxx: Expenses (Kulut) - e.g. 5100, 5200
+  let contextBlock = '';
+  if (usedAccounts.length > 0) {
+    contextBlock += `\nAccounts this organization uses (from opening entry and journal):\n${usedAccounts.map(a => `- ${a.account}: ${a.label}`).join('\n')}`;
+  }
+  if (exampleMappings.length > 0) {
+    contextBlock += `\n\nExample mappings from this organization's completed transactions:\n${exampleMappings.map(e => `- "${e.notePrefix}" → ${e.account} (${e.label})`).join('\n')}`;
+    contextBlock += '\n\nPrefer these accounts and patterns when the transaction type matches.';
+  }
 
-Common accounts: 3100 (tuotot), 3200 (tuotot), 4100 (lahjoitukset), 4200 (jäsenmaksut), 5100 (kulut), 5200 (kulut), 5200 (palvelumaksut).
-
-CRITICAL: Your response must be ONLY this exact JSON format, nothing else - no preamble, no "Here is", no explanation:
-{"account":"XXXX","label":"Finnish label"}
-
-Example: {"account":"5200","label":"Kulut, sijoitus- ja rahoitustoiminta"}`;
+  const template = getPrompt() || DEFAULT_PROMPT_TEMPLATE;
+  const prompt = template
+    .replace(/\{\{CONTEXT\}\}/g, contextBlock)
+    .replace(/\{\{DESCRIPTION\}\}/g, (note || '').slice(0, 500).replace(/"/g, '\\"'))
+    .replace(/\{\{AMOUNT\}\}/g, amount.toFixed(2))
+    .replace(/\{\{DIRECTION\}\}/g, direction)
+    .replace(/\{\{DATE\}\}/g, date);
 
   const response = await fetch(`${API_BASE}?key=${apiKey}`, {
     method: 'POST',

@@ -21,9 +21,12 @@
             <button id="open" type="button">Avaa</button>
             <button id="save" type="button">Tallenna</button>
             <button id="statement" type="button">Lataa Nordean tiliote</button>
-            <button id="suggestMappings" type="button">Ehdota tilejä (AI)</button>
             <button id="newYear" type="button">Uusi vuosi - Avauskirjaus</button>
-            <button id="settings" type="button">Asetukset</button>
+            <span class="ai-buttons">
+                <button id="suggestMappings" type="button">Ehdota tilejä (AI)</button>
+                <button id="promptEdit" type="button">AI-ohje</button>
+                <button id="settings" type="button">Asetukset</button>
+            </span>
         </div>
 
         <dialog id="suggestProgressDialog">
@@ -44,6 +47,19 @@
                 <div class="dialog-buttons">
                     <button type="submit" value="save">Tallenna</button>
                     <button type="button" id="settingsCancel">Peruuta</button>
+                </div>
+            </form>
+        </dialog>
+
+        <dialog id="promptDialog">
+            <form method="dialog">
+                <h2>AI-ohje (prompt)</h2>
+                <p class="settings-hint">Muokkaa ohjetta tilejen ehdottamiseen. Placeholderit: {{CONTEXT}}, {{DESCRIPTION}}, {{AMOUNT}}, {{DIRECTION}}, {{DATE}}</p>
+                <textarea id="promptText" rows="18"></textarea>
+                <div class="dialog-buttons">
+                    <button type="submit" value="save">Tallenna</button>
+                    <button type="button" id="promptReset">Palauta oletus</button>
+                    <button type="button" id="promptCancel">Peruuta</button>
                 </div>
             </form>
         </dialog>
