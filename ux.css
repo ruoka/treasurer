@@ -19,14 +19,12 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background-color: #f5f7f9;
     color: #222;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
 .page {
     width: 100%;
     max-width: 1200px;
+    margin: 0 auto;
     padding: 2rem 1.5rem 3rem;
     display: grid;
     gap: 1.75rem;
@@ -336,14 +334,22 @@ th {
     margin-top: 0.5rem;
 }
 
-#suggestProgressDialog {
+.suggest-progress-dialog {
     padding: 1.5rem;
     min-width: 320px;
     max-width: 90vw;
     position: fixed;
     top: 1rem;
-    right: 1rem;
+    left: 1rem;
     margin: 0;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15);
+    z-index: 2147483647;
+}
+
+.suggest-progress-dialog::backdrop {
+    background: transparent;
 }
 
 #suggestProgressDialog h2 {

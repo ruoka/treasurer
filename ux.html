@@ -9,8 +9,8 @@
 
 <head>
     <title>Rahuri</title>
-    <link href="ux.css" rel="stylesheet" type="text/css">
-    <script src="./ux.js" type="module"></script>
+    <link href="ux.css?v=20260211" rel="stylesheet" type="text/css">
+    <script src="./ux.js?v=20260211" type="module"></script>
 </head>
 
 <body>
@@ -28,15 +28,6 @@
                 <button id="settings" type="button">Asetukset</button>
             </span>
         </div>
-
-        <dialog id="suggestProgressDialog">
-            <h2>Ehdota tilejä</h2>
-            <p id="suggestProgressText">Käsitellään...</p>
-            <pre id="suggestErrorDetails"></pre>
-            <div class="dialog-buttons">
-                <button type="button" id="suggestStopBtn">Lopeta</button>
-            </div>
-        </dialog>
 
         <dialog id="settingsDialog">
             <form method="dialog">
@@ -218,6 +209,15 @@
         </section>
 
     </main>
+
+    <dialog id="suggestProgressDialog" class="suggest-progress-dialog">
+        <h2>Ehdota tilejä</h2>
+        <p id="suggestProgressText">Käsitellään...</p>
+        <pre id="suggestErrorDetails"></pre>
+        <div class="dialog-buttons">
+            <button type="button" id="suggestStopBtn">Lopeta</button>
+        </div>
+    </dialog>
 
 </body>
 

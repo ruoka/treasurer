@@ -662,16 +662,17 @@ window.onload = () => {
             one("#settings").click();
             return;
         }
-        const dialog = one("#suggestProgressDialog");
+        const progressDialog = one("#suggestProgressDialog");
         const progressText = one("#suggestProgressText");
         const errorDetails = one("#suggestErrorDetails");
         let abortRequested = false;
-        one("#suggestStopBtn").onclick = () => { abortRequested = true; dialog.close(); };
+        one("#suggestStopBtn").onclick = () => { abortRequested = true; progressDialog.close(); };
         progressText.textContent = 'Aloitetaan...';
         progressText.style.color = '';
         errorDetails.textContent = '';
         one('.tab-link[data-tab="journal"]').click();
-        dialog.show();
+        document.body.appendChild(progressDialog);
+        progressDialog.show();
 
         let done = 0;
         let failed = 0;
@@ -739,7 +740,7 @@ window.onload = () => {
                 await new Promise(r => setTimeout(r, 3000));
             }
         }
-        dialog.close();
+        progressDialog.close();
         updateTables();
         let msg = abortRequested
             ? `Keskeytetty. Ehdotettu ${done} tapahtumaa.`
