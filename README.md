@@ -1,82 +1,99 @@
 # Treasurer (Rahuri)
 
-Web-based double-entry bookkeeping application for non-profit organizations in Finland. Supports journal entries, general ledger, balance sheets, and income statements following Finnish accounting standards (GPL-3.0 for non-profits, commercial license available).
+Web-based double-entry bookkeeping for Finnish non-profit organizations.  
+Rahuri supports journal handling, ledger views, Nordea statement import, AI-assisted mapping, and financial statement output.
 
 ![Rahuri screenshot](docs/rahuri-screenshot.png)
+![Rahuri TASE screenshot](docs/rahuri-tase-screenshot.png)
 
-## Purpose
+## What It Does
 
-Treasurer is designed for **non-profit general-purpose organizations** (aatteelliset yhteisöt) in Finland, such as registered associations (rekisteröity yhdistys) and foundations (säätiö). The application helps these organizations manage their financial records using standard double-entry bookkeeping principles. It supports:
+- Double-entry bookkeeping with debit/credit balancing
+- Journal (`Päiväkirja`) and general ledger (`Pääkirja`) views
+- Balance sheet (`Tase`) and income statement (`Tuloslaskelma`)
+- Nordea `.nda` import
+- AI account suggestions for unmapped entries (`9999`)
+- Financial statement popup with year-over-year comparison
 
-- **Journal Entry Management**: Create, edit, and manage financial transactions with proper credit/debit balancing
-- **General Ledger**: Track all account transactions with running balances
-- **Financial Reporting**: Generate balance sheets (TASE) and income statements (Tuloslaskelma) based on Finnish accounting standards
-- **Bank Statement Import**: Import transactions from Nordea bank statements (.nda format) to automatically create journal entries
-- **Data Persistence**: Save and load journal data in JSON format
-
-The application follows Finnish accounting standards and uses the official Finnish chart of accounts structure for proper financial reporting.
-
-## Features
-
-- Double-entry bookkeeping with automatic balance validation
-- Multiple account categories (Assets, Liabilities, Equity, Income, Expenses)
-- Transaction filtering and search capabilities
-- Bank statement import from Nordea
-- Real-time balance calculations
-- Export/import functionality for data backup
-
-## Running the Application
-
-### Quick Start
-
-The easiest way to start the application is using the provided script:
+## Quick Start
 
 ```bash
 ./start.sh
 ```
 
-This script automatically opens Google Chrome with the required file access permissions and loads `ux.html`.
+This opens Chrome with required local-file flags and loads `ux.html`.
 
-### Manual Start
-
-Alternatively, you can manually open the application:
+Manual alternative:
 
 ```bash
-open -a Google\ Chrome --args  --allow-file-access-from-files
+open -a Google\ Chrome --args --allow-file-access-from-files
 ```
 
-Then open `ux.html` in the browser to start using the application.
+Then open `ux.html`.
+
+## Browser Support and Startup
+
+Rahuri currently supports **Google Chrome** (or Chromium-compatible Chrome with equivalent flags) for local `file://` usage.
+
+The app needs Chrome to be started with:
+
+`--allow-file-access-from-files`
+
+### macOS
+
+Use:
+
+```bash
+./start.sh
+```
+
+or:
+
+```bash
+open -a "Google Chrome" --args --allow-file-access-from-files "/absolute/path/to/ux.html"
+```
+
+### Windows (PowerShell)
+
+```powershell
+& "C:\Program Files\Google\Chrome\Application\chrome.exe" --allow-file-access-from-files "C:\path\to\treasurer\ux.html"
+```
+
+If Chrome is installed under user profile:
+
+```powershell
+& "$env:LOCALAPPDATA\Google\Chrome\Application\chrome.exe" --allow-file-access-from-files "C:\path\to\treasurer\ux.html"
+```
+
+### Linux
+
+```bash
+google-chrome --allow-file-access-from-files "/path/to/treasurer/ux.html"
+```
+
+## Documentation
+
+- Detailed usage guide: [`docs/USAGE.md`](docs/USAGE.md)
+- Main source files:
+  - UI: `ux.html`, `ux.css`, `ux.js`
+  - Core accounting: `treasurer.js`, `general_ledger.js`
+  - Bank import: `nordea.js`
+  - AI mapping: `gemini.js`
 
 ## License
 
-This software is available under a dual licensing model:
+Dual license:
 
-- **GPL-3.0 for Non-Profit Organizations**: Non-profit organizations (registered associations, foundations, and other recognized non-profit entities) may use, modify, and distribute this software under the terms of the GNU General Public License version 3.
+- **GPL-3.0** for non-profit organizations
+- **Commercial license** for for-profit/commercial use
 
-- **Commercial License**: For-profit organizations and commercial entities must obtain a commercial license. For commercial licensing inquiries, please contact via [GitHub issues](https://github.com/ruoka/treasurer/issues).
+See [`LICENSE`](LICENSE) for details.
 
-See the [LICENSE](LICENSE) file for full details.
+## Accounting References
 
-## Appendix: Accounting Standards and References
+Rahuri account structure is based on official Finnish standards:
 
-The application uses the official Finnish accounting standards and code lists. The account structure and naming conventions are based on the following official sources:
-
-### Legal Framework
-- **[Finnish Accounting Act (2015/1753)](https://www.finlex.fi/fi/laki/alkup/2015/20151753)**: The legal basis for Finnish accounting standards. This regulation includes specific provisions for small and micro enterprises, including the income statement format for ideological associations and foundations (aatteellinen yhteisö ja säätiö) as specified in Liite IV.
-  - **[PDF Download (20151753.pdf)](https://www.finlex.fi/fi/laki/alkup/2015/20151753.pdf)**: Direct link to the PDF version of the regulation
-
-### Code Lists (Koodistot)
-The account names, codes, and structure are defined in the official Finnish code lists maintained by the Finnish Tax Administration. These code schemes are specifically designed for non-profit organizations:
-
-- **[MC-2024-1 Code Scheme](https://koodistot.suomi.fi/codescheme;registryCode=sbr-fi-code-lists;schemeCode=MC-2024-1)**: Main code scheme for accounting classification
-- **[MC67 Extension](https://koodistot.suomi.fi/extension;registryCode=sbr-fi-code-lists;schemeCode=MC-2024-1;extensionCode=MC67)**: Extension for balance sheet accounts (TASE) for non-profit organizations
-- **[MC66 Extension](https://koodistot.suomi.fi/extension;registryCode=sbr-fi-code-lists;schemeCode=MC-2024-1;extensionCode=MC66)**: Extension for income statement accounts (Tuloslaskelma) for non-profit organizations, following the format specified in the Finnish Accounting Act (2015/1753) Liite IV for ideological associations and foundations
-
-### Usage
-These code lists define:
-- Account numbers (e.g., 1000, 2000, 3100)
-- Account names in Finnish (e.g., "Vastaavaa", "Vastattavaa", "Tuotot")
-- Account hierarchy and relationships
-- Proper classification for financial reporting
-
-The `general_ledger.js` file contains the account structure based on these official standards, ensuring compliance with Finnish accounting regulations for balance sheets and income statements.
+- [Finnish Accounting Act (2015/1753)](https://www.finlex.fi/fi/laki/alkup/2015/20151753)
+- [MC-2024-1 Code Scheme](https://koodistot.suomi.fi/codescheme;registryCode=sbr-fi-code-lists;schemeCode=MC-2024-1)
+- [MC67 Extension (TASE)](https://koodistot.suomi.fi/extension;registryCode=sbr-fi-code-lists;schemeCode=MC-2024-1;extensionCode=MC67)
+- [MC66 Extension (Tuloslaskelma)](https://koodistot.suomi.fi/extension;registryCode=sbr-fi-code-lists;schemeCode=MC-2024-1;extensionCode=MC66)
