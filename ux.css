@@ -80,6 +80,35 @@ table {
     min-width: 480px;
 }
 
+/* Balance sheet / income statement column proportions */
+#balance th:nth-child(1),
+#balance td:nth-child(1),
+#income th:nth-child(1),
+#income td:nth-child(1) {
+    width: 16%;
+    min-width: 88px;
+}
+
+#balance th:nth-child(2),
+#balance td:nth-child(2),
+#income th:nth-child(2),
+#income td:nth-child(2) {
+    width: 54%;
+    min-width: 230px;
+    white-space: normal;
+    word-break: break-word;
+}
+
+#balance th:nth-child(3),
+#balance td:nth-child(3),
+#income th:nth-child(3),
+#income td:nth-child(3) {
+    width: 30%;
+    min-width: 120px;
+    text-align: right;
+    white-space: nowrap;
+}
+
 /* Column width adjustments for better readability */
 /* Numero column (1st column) - can be shorter */
 #journal th:nth-child(1),

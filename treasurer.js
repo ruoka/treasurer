@@ -16,6 +16,11 @@ export const journal = [];
 export const ledger = [];
 
 export const balances = new Map();
+export let comparisonSnapshot = null;
+
+export const setComparisonSnapshot = (snapshot) => {
+    comparisonSnapshot = snapshot || null;
+};
 
 /**
  * Calculate account balances and update the ledger.
@@ -90,6 +95,11 @@ export const createOpeningEntries = (newYearDate, reference = null) => {
     // Generate reference if not provided
     const year = newYearDate.substring(0, 4);
     const entryReference = reference || `Avaus ${year}`;
+    const previousYear = String((parseInt(year, 10) || new Date().getFullYear()) - 1);
+    comparisonSnapshot = {
+        year: previousYear,
+        balances: Object.fromEntries(balances)
+    };
     
     const entries = [];
     let totalDebits = 0;

@@ -101,6 +101,123 @@ window.onload = () => {
         });
     }
 
+    const formatMoney = (value) => {
+        const n = typeof value === 'number' ? value : parseFloat(value) || 0;
+        return n.toLocaleString('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+
+    const escapeHtml = (s) => String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const getAccountIndentLevel = (account, accountSet) => {
+        const a = String(account || '');
+        if (a.length !== 4) return 0;
+        const candidates = [
+            `${a[0]}000`,
+            `${a.slice(0, 2)}00`,
+            `${a.slice(0, 3)}0`
+        ];
+        let level = 0;
+        candidates.forEach(parent => {
+            if (parent !== a && accountSet.has(parent)) level++;
+        });
+        return Math.min(level, 3);
+    };
+
+    const buildStatementRows = (accounts, previousBalances) => {
+        const accountSet = new Set(accounts.map(a => String(a.account)));
+        return accounts.map(acc => {
+            const current = Treasurer.balances.get(acc.account) || 0;
+            const previous = previousBalances[acc.account] || 0;
+            const level = getAccountIndentLevel(acc.account, accountSet);
+            const indent = level * 1.1;
+            return `<tr>
+                <td>${escapeHtml(acc.account)}</td>
+                <td><span class="label-indent" style="padding-left:${indent}em">${escapeHtml(acc.code_prelabel_fi || '')}</span></td>
+                <td class="num">${formatMoney(current)}</td>
+                <td class="num">${formatMoney(previous)}</td>
+            </tr>`;
+        }).join('');
+    };
+
+    const openFinancialStatementPopup = () => {
+        Treasurer.account();
+        const controlBalance = Treasurer.balances.get('9999') || 0;
+        const unmappedCount = Treasurer.journal.reduce((count, tx) => {
+            const has9999 = tx.entries?.some(e => e.account === '9999');
+            return count + (has9999 ? 1 : 0);
+        }, 0);
+        if (Math.abs(controlBalance) > 0.009 || unmappedCount > 0) {
+            alert(
+                'Tilinpäätöstä ei voi luoda ennen kuin kontrollitili 9999 (Kirjaamattomat) on tyhjä.\n\n' +
+                `Saldo 9999: ${formatMoney(controlBalance)}\n` +
+                `Kirjaamattomia tapahtumia: ${unmappedCount}\n\n` +
+                'Ehdota/vahvista tilit tai kirjaa puuttuvat tilit käsin ensin.'
+            );
+            return;
+        }
+        const popup = window.open('', '_blank', 'width=1100,height=900');
+        if (!popup) {
+            alert('Selaimen ponnahdusikkuna estetty. Salli ponnahdusikkunat sivulle.');
+            return;
+        }
+
+        const years = Treasurer.journal.map(tx => {
+            const d = tx.entries?.[0]?.date || tx.header?.created || '';
+            return parseInt(String(d).slice(0, 4), 10) || 0;
+        }).filter(Boolean);
+        const reportYear = years.length ? Math.max(...years) : new Date().getFullYear();
+        const comparison = Treasurer.comparisonSnapshot || null;
+        const previousYearLabel = comparison?.year || String(reportYear - 1);
+        const previousBalances = comparison?.balances || {};
+
+        const incomeRows = buildStatementRows(Treasurer.general_ledger.income_statement, previousBalances);
+        const balanceRows = buildStatementRows(Treasurer.general_ledger.balance_sheet, previousBalances);
+
+        popup.document.open();
+        popup.document.write(`<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <title>Tilinpäätös ${reportYear}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; margin: 24px; color: #111; }
+    h1 { margin: 0 0 16px; font-size: 24px; }
+    h2 { margin: 28px 0 8px; font-size: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px 10px; font-size: 14px; }
+    th { background: #f5f5f5; text-align: left; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .hint { color: #666; font-size: 12px; margin-top: -4px; margin-bottom: 10px; }
+    .label-indent { display: inline-block; }
+  </style>
+</head>
+<body>
+  <h1>Tilinpäätös ${reportYear}</h1>
+  <h2>Tuloslaskelma</h2>
+  <table>
+    <thead>
+      <tr><th>Tili</th><th>Selite</th><th class="num">31.12.${reportYear}</th><th class="num">31.12.${escapeHtml(previousYearLabel)}</th></tr>
+    </thead>
+    <tbody>${incomeRows}</tbody>
+  </table>
+  <h2>Tase</h2>
+  <table>
+    <thead>
+      <tr><th>Tili</th><th>Selite</th><th class="num">31.12.${reportYear}</th><th class="num">31.12.${escapeHtml(previousYearLabel)}</th></tr>
+    </thead>
+    <tbody>${balanceRows}</tbody>
+  </table>
+  ${comparison ? '' : '<p class="hint">Vertailuvuoden luvut puuttuvat. Luo avauskirjaus, jotta edellisen vuoden vertailuluvut tallentuvat automaattisesti.</p>'}
+</body>
+</html>`);
+        popup.document.close();
+    };
+
     const normalizeMappingStatus = (tx) => {
         let s = tx.mappingStatus;
         if (!s) {
@@ -456,14 +573,14 @@ window.onload = () => {
             const file = await fileHandle.getFile();
             const content = await file.text();
             const parsedData = JSON.parse(content);
-            
-            // Validate that it's an array
-            if (!Array.isArray(parsedData)) {
-                throw new Error('Invalid file format: expected an array of transactions');
+            const journalData = Array.isArray(parsedData) ? parsedData : parsedData?.journal;
+            if (!Array.isArray(journalData)) {
+                throw new Error('Invalid file format: expected journal array');
             }
+            Treasurer.setComparisonSnapshot(parsedData?.comparisonSnapshot || null);
             
             // Normalize amounts and mappingStatus
-            const normalizedData = parsedData.map(transaction => {
+            const normalizedData = journalData.map(transaction => {
                 const has9999 = transaction.entries?.some(e => e.account === '9999');
                 const status = transaction.mappingStatus || (has9999 ? 'unmapped' : 'confirmed');
                 return {
@@ -500,7 +617,10 @@ window.onload = () => {
                 }]
             });
             const writable = await handle.createWritable();
-            await writable.write(JSON.stringify(Treasurer.journal, null, 2));
+            await writable.write(JSON.stringify({
+                journal: Treasurer.journal,
+                comparisonSnapshot: Treasurer.comparisonSnapshot
+            }, null, 2));
             await writable.close();
         } catch (error) {
             if (error.name === 'AbortError') {
@@ -510,6 +630,10 @@ window.onload = () => {
             alert(`Error saving file: ${error.message}`);
             console.error('Error saving journal file:', error);
         }
+    };
+
+    one("#financialStatement").onclick = () => {
+        openFinancialStatementPopup();
     };
 
     one("#statement").onclick = async () => {
